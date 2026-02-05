@@ -3,6 +3,11 @@ body {
   margin: 0;
   padding: 0;
   background-color: #a28eeb;
+  font-family: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 /* App.jsx */
@@ -10,17 +15,12 @@ body {
 .site-container {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  min-height: 100vh;
   width: 100%;
-  padding-top: 50px;
+  padding-top: 60px;
 }
 
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
+.header-right,
 .header-left {
   display: flex;
   align-items: center;
@@ -34,9 +34,9 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
+  padding: 0px 20px;
   border-bottom: 1px solid #eee;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.98);
   width: 100%;
   height: 50px;
   z-index: 1000;
@@ -55,7 +55,7 @@ body {
 .section {
   -webkit-flex-wrap: wrap;
   flex-wrap: wrap;
-  padding: 0;
+  padding: 20px;
   margin: 0;
   list-style: none;
   border: 1px solid #a28eeb;
@@ -65,7 +65,12 @@ body {
 
 .title-container {
   background-color: #a28eeb;
-  padding: 80px 20px;
+  padding: 60px 20px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+
+
 }
 
 /* Feature-item */
@@ -83,32 +88,31 @@ body {
 }
 
 .feature-item:nth-child(even) {
-  flex-direction: row;
+  flex-direction: row-reverse;
 }
 
 .feature-title {
   font-size: 2rem;
-  margin: 10px 0;
+  margin-bottom: 15px;
   color: #111827;
 }
 
 .feature-description {
   color: #4b5563;
   line-height: 1.7;
+  font-size: 1.1rem;
 }
 
 /* Login.jsx  Folder.jsx  Signup.jsx */
 
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
+  padding: 20px;
 
   animation: slideIn 0.8s ease-out;
 }
@@ -165,6 +169,7 @@ body {
     opacity: 0;
     transform: translateX(-5px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -195,7 +200,7 @@ body {
   position: fixed;
   top: 50px;
   left: 0;
-  width: 150px;
+  width: 260px;
   bottom: 0;
 
   background-color: #ffffffdb;
@@ -205,7 +210,6 @@ body {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
   z-index: 999;
 
   animation: slideIn 0.6s ease-out;
@@ -215,6 +219,7 @@ body {
   from {
     transform: translateX(-100%);
   }
+
   to {
     transform: translateX(0);
   }
@@ -259,22 +264,52 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  width: 400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 40px 20px;
   box-sizing: border-box;
+}
+
+.card-input {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  border: 2px solid #eee;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.card-input:focus {
+  border-color: #a28eeb;
+  outline: none;
+}
+
+.card-inner-input {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid #f0f0f0;
+  padding: 10px 0;
+  font-size: 1.1rem;
+  background: transparent;
+  font-weight: 600;
+}
+
+.card-inner-input:focus {
+  border-bottom-color: #32305e;
+  outline: none;
 }
 
 .create-header,
 .editor-placeholder {
   width: 100%;
+  text-align: center;
   max-width: 800px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.card-input,
 .cards-list,
 .add-card-btn,
 .create-btn {
@@ -412,6 +447,14 @@ button {
 
 /* Folder.jsx */
 
+.folders-grid {
+  display: grid;
+  gap: 25px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  width: 100%;
+  padding: 20px 0;
+}
+
 .folder-card {
   background: white;
   border-radius: 10px;
@@ -425,6 +468,7 @@ button {
   flex-direction: column;
   justify-content: space-between;
 }
+
 .sets-grid,
 .folders-grid {
   display: grid;
@@ -451,6 +495,69 @@ button {
 }
 
 /* FolderDetail.jsx */
+
+.library-header {
+  padding: 40px 20px;
+  text-align: center;
+  background-color: #a28eeb;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.modal-body {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.set-selection-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.set-selection-row span {
+  font-weight: 600;
+  color: #374151;
+}
+
+.sets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  width: 100%;
+  justify-content: center;
+}
 
 .add-action-btn {
   background-color: #a28eeb;
@@ -522,11 +629,62 @@ button {
 /* Library.jsx */
 
 .library-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
-  text-align: center;
+  padding: 40px 20px;
   box-sizing: border-box;
+}
+
+.flashcard-container {
+  perspective: 1000px;
+  width: 95%;
+  max-width: 700px;
+  height: 350px;
+  margin: 20px auto;
+  cursor: pointer;
+}
+
+.flashcard-inner {
+  width: 325px;
+  justify-content: center;
+  height: 100%;
+  position: relative;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.close-modal-btn {
+  align-self: flex-start;
+  margin-bottom: 20px;
+  background: white;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.button {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 12px 24px;
+  min-width: 110px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  background-color: white;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .section {
@@ -542,6 +700,7 @@ button {
   display: grid;
   gap: 20px;
   width: 100%;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   margin-top: 25px;
   justify-content: center;
 }
@@ -555,7 +714,18 @@ button {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: transform 0.2s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.folder-card:hover {
+  transform: translateY(-10px);
+  border-color: #37247f;
+}
+
+.folder-card:active {
+  transform: translateY(-4px) scale(0.98);
+  box-shadow: 0 0 15px 5px rgba(162, 142, 235, 0.9);
+  transition: transform 0.1s;
 }
 
 .button-group {
@@ -571,4 +741,84 @@ button {
   width: auto;
   padding: 8px 16px;
   margin-top: 0;
+}
+
+@media (max-width: 768px) {
+
+  .modal {
+    width: 88%;
+    max-width: 400px;
+    padding: 40px;
+    border-radius: 20px;
+    margin: auto;
+  }
+
+
+  .feature-item,
+  .feature-item:nth-child(even) {
+    flex-direction: column;
+    padding: 25px;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .title-container {
+    padding: 40px 10px;
+  }
+
+  .folders-grid,
+  .sets-grid {
+    grid-template-columns: 1fr;
+    padding: 5px;
+    gap: 20px;
+  }
+
+
+  .menu-window {
+    width: 40%;
+    max-width: 300px;
+  }
+
+
+  .card-inputs-row {
+    flex-direction: column;
+  }
+
+  .flashcard-container {
+    height: 250px;
+    width: 92%;
+    max-width: 90%;
+    margin: 20px 0;
+  }
+
+  .front,
+  .back {
+    font-size: 1.2rem;
+  }
+
+  .library-header {
+    padding: 20px 40px;
+  }
+
+
+  .library-container {
+    padding: 20px 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .button {
+    width: 100%;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+
+  }
+
+  .sets-grid {
+    grid-template-columns: 1fr;
+  }
+
 }
