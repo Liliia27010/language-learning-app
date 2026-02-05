@@ -12,11 +12,11 @@ export function LibraryProvider({ children }) {
 
   const ref = useRef(false);
 
-useEffect(() => {
-  console.log('entering myLibraryContext')
-  if (ref.current) {
-    return;
-  }
+  useEffect(() => {
+    console.log('entering myLibraryContext')
+    if (ref.current) {
+      return;
+    }
     const fetchLibraryData = async () => {
       try {
         ref.current = true;
@@ -60,47 +60,52 @@ useEffect(() => {
     localStorage.setItem("sets", JSON.stringify(existingSets));
   };
 
-const deleteCardSet = async (setId) => {
-  if (!window.confirm("Delete this cards set?")) return;
+  const deleteCardSet = async (setId) => {
+    if (!window.confirm("Delete this cards set?")) return;
 
-  try {
-    const token = localStorage.getItem("token");
-    const res = await fetch(`/api/setcards/${setId}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/setcards/${setId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-    if (res.ok) {
-      setSavedSets(prev => prev.filter(s => String(s._id || s.id) !== String(setId)));
-    }
-  } catch (err) {
-    console.error("Error", err);
-  }
-};
-
-const handleAddSetToFolder = (folderId, setToAdd) => {
-  setFolders((prevFolders) => {
-    const updatedFolders = prevFolders.map((folder) => {
-      const currentFolderId = String(folder._id || folder.id);
-      const targetFolderId = String(folderId);
-
-      if (currentFolderId === targetFolderId) {
-        const currentSets = Array.isArray(folder.sets) ? folder.sets : [];
-
-        const isAlreadyAdded = currentSets.some(
-          (s) => String(s._id ) === String(setToAdd._id )
-        );
-
-        if (isAlreadyAdded) return folder;
-        return { ...folder, sets: [...currentSets, setToAdd] };
+      if (res.ok) {
+        setSavedSets(prev => prev.filter(s => String(s._id || s.id) !== String(setId)));
       }
-      return folder;
-    });
+    } catch (err) {
+      console.error("Error", err);
+    }
+  };
 
-    localStorage.setItem("folder", JSON.stringify(updatedFolders));
-    return updatedFolders;
-  });
-};
+  const handleAddSetToFolder = async (folderId, setToAdd) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(`/api/folder/${folderId}/add-set`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ setId: setToAdd._id }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update database");
+
+      setFolders(prev => prev.map(folder => {
+        if (String(folder._id) !== String(folderId)) return folder;
+
+        const currentSets = folder.sets || [];
+        const isDuplicate = currentSets.some(s => String(s._id) === String(setToAdd._id));
+
+        return isDuplicate ? folder : { ...folder, sets: [...currentSets, setToAdd] };
+      }));
+
+    } catch (err) {
+      console.error("Sync error:", err);
+    }
+  };
 
   const handleUpdateSet = (updatedSet) => {
     setSavedSets((prevSets) => {
@@ -112,23 +117,23 @@ const handleAddSetToFolder = (folderId, setToAdd) => {
     });
   };
 
-const deleteFolder = async (folderId) => {
-  if (!window.confirm("Delete this folder?")) return;
+  const deleteFolder = async (folderId) => {
+    if (!window.confirm("Delete this folder?")) return;
 
-  try {
-    const token = localStorage.getItem("token");
-    const res = await fetch(`/api/folder/${folderId}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/folder/${folderId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-    if (res.ok) {
-      setFolders(prev => prev.filter(f => String(f._id || f.id) !== String(folderId)));
+      if (res.ok) {
+        setFolders(prev => prev.filter(f => String(f._id || f.id) !== String(folderId)));
+      }
+    } catch (err) {
+      console.error("Error", err);
     }
-  } catch (err) {
-    console.error("Error", err);
-  }
-};
+  };
 
   return (
     <LibraryContext.Provider
