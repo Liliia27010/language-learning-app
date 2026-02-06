@@ -112,7 +112,7 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  padding: 20px;
+  padding: 5px;
 
   animation: slideIn 0.8s ease-out;
 }
@@ -288,7 +288,7 @@ body {
 .card-inner-input {
   width: 100%;
   border: none;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid #090909;
   padding: 10px 0;
   font-size: 1.1rem;
   background: transparent;
@@ -456,7 +456,7 @@ button {
 }
 
 .folder-card {
-  background: white;
+  background: rgb(27, 27, 27);
   border-radius: 10px;
   padding: 20%;
   box-shadow: 0 8px 10px rgba(0, 0, 0, 0.05);
@@ -773,6 +773,10 @@ button {
     gap: 20px;
   }
 
+  .overlay {
+    padding-top: 5px;
+  }
+
 
   .menu-window {
     width: 40%;
@@ -822,3 +826,4 @@ button {
   }
 
 }
+

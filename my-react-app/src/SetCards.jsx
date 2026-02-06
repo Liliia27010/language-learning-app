@@ -223,7 +223,7 @@ export default function SetCards() {
       </div>
 
       {isFolderModalOpen && (
-        <div className="login-overlay">
+        <div className="overlay">
           <div className="backdop" onClick={() => navigate("/library")} />
           <div className="modal">
             <div className="box-header">
