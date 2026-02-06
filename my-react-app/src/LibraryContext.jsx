@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
+import { authClient } from "./lib/auth-client";
 
 const LibraryContext = createContext(null);
 
@@ -12,40 +13,49 @@ export function LibraryProvider({ children }) {
 
   const ref = useRef(false);
 
-  useEffect(() => {
-    console.log('entering myLibraryContext')
-    if (ref.current) {
-      return;
-    }
+useEffect(() => {
+    console.log('entering myLibraryContext');
+    
+    if (ref.current) return;
+
     const fetchLibraryData = async () => {
       try {
         ref.current = true;
-        const token = localStorage.getItem("token");
-        const fetchOptions = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
+
+
+        const { data: session, error: sessionError } = await authClient.getSession();
+
+        if (sessionError || !session) {
+          console.log("No active session found. User is not logged in.");
+          return; 
+        }
+
 
         const [folderRes, setsRes] = await Promise.all([
-          fetch("/api/folder", fetchOptions),
-          fetch("/api/setcards", fetchOptions)
+          fetch("/api/folder"),
+          fetch("/api/setcards")
         ]);
 
         if (folderRes.ok) {
           const folderData = await folderRes.json();
-          setFolders(Array.isArray(folderData) ? folderData : []);
-          localStorage.setItem("folder", JSON.stringify(folderData));
+          const validFolders = Array.isArray(folderData) ? folderData : [];
+          setFolders(validFolders);
+          localStorage.setItem("folder", JSON.stringify(validFolders));
+        } else if (folderRes.status === 401) {
+          console.error("Backend said: Unauthorized for folders");
         }
 
         if (setsRes.ok) {
           const setsData = await setsRes.json();
-          setSavedSets(Array.isArray(setsData) ? setsData : []);
-          localStorage.setItem("sets", JSON.stringify(setsData));
+          const validSets = Array.isArray(setsData) ? setsData : [];
+          setSavedSets(validSets);
+          localStorage.setItem("sets", JSON.stringify(validSets));
+        } else if (setsRes.status === 401) {
+          console.error("Backend said: Unauthorized for sets");
         }
 
       } catch (err) {
-        console.error("Failed to load library data", err);
+        console.error("Failed to load library data:", err);
       }
     };
 

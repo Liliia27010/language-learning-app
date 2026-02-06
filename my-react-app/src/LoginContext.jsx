@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-
+import { authClient } from "./lib/auth-client"
 const AuthContext = createContext(null);
 
 export function useAuth() {
@@ -8,27 +8,36 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
 
 
   useEffect(() => {
-    const auth = localStorage.getItem("isAuthenticated");
-    if (auth === "true") setIsLoggedIn(true);
+    const checkSession = async () => {
+      const { data: session } = await authClient.getSession();
+      if (session) {
+        setIsLoggedIn(true);
+        setUser(session.user);
+      }
+    };
+    
+    checkSession();
 
     document.body.style.overflow =
       isLoginOpen || isSignupOpen ? "hidden" : "unset";
   }, [isLoginOpen, isSignupOpen]);
 
-  const handleLogin = () => {
-    localStorage.setItem("isAuthenticated", "true");
+  const handleLogin = (userData) => {
     setIsLoggedIn(true);
+    setUser(userData);
     setIsLoginOpen(false);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("isAuthenticated");
+  const handleLogout = async () => {
+    await authClient.signOut();
     setIsLoggedIn(false);
+    setUser(null);
     window.location.href = "/";
   };
   console.log('rendering auth provider')

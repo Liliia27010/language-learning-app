@@ -17,7 +17,7 @@ export default function Login({ isOpen, onClose, onSwitchToSignup }) {
       });
 
       if (error) {
-        return { success: false, erro: error.message || "Login failed" };
+        return { success: false, error: error.message || "Login failed" };
       }
       handleLogin();
       onClose();
