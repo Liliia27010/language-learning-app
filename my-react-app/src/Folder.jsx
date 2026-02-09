@@ -61,7 +61,7 @@ export default function Folder() {
   };;
 
   return (
-    <div className="login-overlay">
+    <div className="overlay">
       <div className="backdrop" onClick={() => navigate("/library")} />
       <div className="modal">
         <button
