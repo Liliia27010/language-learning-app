@@ -64,7 +64,7 @@ export default function App() {
               <div className="header">
                 {!isLoggedIn && (
                   <button
-                    className="nav-link"
+                    className="login-link"
                     onClick={() => setIsLoginOpen(true)}
                   >
                     Log in
