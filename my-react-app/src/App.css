@@ -244,17 +244,28 @@ body {
   padding: 12px;
 }
 
-.nav-link {
+.login-link {
+  background-color: #a28eeb;
   text-decoration: none;
-  color: #01080ff3;
+  color: #fffffff3;
   font-weight: 600;
   padding: 12px;
   border-radius: 8px;
   transition: all 0.2s;
 }
 
-.nav-link:hover {
-  background-color: #a28eeb;
+.nav-link {
+  text-decoration: none;
+  color: #080808f3;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.nav-link:hover,
+.login-link:hover {
+  background-color: #7b6bb3;
   color: #ceceea;
 }
 
@@ -274,6 +285,7 @@ body {
 .card-input {
   width: 100%;
   padding: 15px;
+  color:#000000;
   border-radius: 12px;
   border: 2px solid #eee;
   font-size: 1rem;
@@ -300,14 +312,22 @@ body {
   outline: none;
 }
 
+.input-wrapper::placeholder{
+  color: #000000;
+}
 .create-header,
-.editor-placeholder {
+.editor-placeholder{
   width: 100%;
+  color: #000000;
   text-align: center;
   max-width: 800px;
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.card-inner-input{
+  color:#000000;
 }
 
 .cards-list,
@@ -455,6 +475,11 @@ button {
   padding: 20px 0;
 }
 
+.folder-card h3,
+.folder-card p {
+  color: #32305e !important; 
+  margin-bottom: 5px;
+}
 .folder-card {
   background: rgb(27, 27, 27);
   border-radius: 10px;
@@ -605,6 +630,7 @@ button {
 .back {
   position: absolute;
   top: 0;
+  color: #000000;
   left: 0;
   width: 100%;
   height: 100%;
@@ -642,7 +668,6 @@ button {
 
 .flashcard-container {
   perspective: 1000px;
-  width: 95%;
   max-width: 700px;
   height: 350px;
   margin: 20px auto;
@@ -662,6 +687,7 @@ button {
   align-self: flex-start;
   margin-bottom: 20px;
   background: white;
+  color:#000000;
   padding: 5px;
   border-radius: 5px;
 }
@@ -677,9 +703,10 @@ button {
 .btn {
   padding: 12px 24px;
   min-width: 110px;
+  color: #000000;
   border-radius: 8px;
-  border: 1px solid #eee;
-  background-color: white;
+  border: 1px solid #ffffff;
+  background-color: rgb(255, 255, 255);
   font-weight: 700;
   cursor: pointer;
   display: flex;
@@ -883,9 +910,9 @@ button {
   .create-set,
   .site-container{
     max-width: 100% !important; 
-    width: 600px;
+    width: 800px;
     margin: 0 auto;
-    padding: 80px 70px;
+    padding: 80px 100px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -918,5 +945,71 @@ button {
   .nav-link {
     padding: 15px;
     margin-bottom: 5px;
+  }
+}
+
+@media (min-width: 1024px) {
+
+  .menu-window {
+    width: 20%;
+  }
+
+  .create-set,
+  .site-container{
+    max-width: 100% !important; 
+    width: 1100px;
+    margin: 0 auto;
+    padding: 30px 30px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .middle-section {
+    padding: 30px;
+  }
+
+  .folders-grid,
+  .sets-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+    gap: 35px;
+    width: 100%;
+    max-width: 1250px;
+    justify-content: center;
+    margin: 40px auto;
+  }
+
+  .flashcard-container {
+    max-width: 1000px;
+    height: 20px;
+  }
+
+  .flashcard-inner {
+    padding: 30px 400px;
+    max-width: 400px;
+    height: 250px;
+  }
+
+  .folder-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .folder-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  }
+
+  .button {
+    padding: 200px 70px;
+  }
+
+  .create-btn {
+    max-width: 400px;
+    padding: 15px;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin: 20px auto;
   }
 }
