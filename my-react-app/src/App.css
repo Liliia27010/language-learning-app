@@ -827,3 +827,96 @@ button {
 
 }
 
+@media (min-width: 768px) and (max-width: 1024px) {
+
+  .menu-window {
+    width: 20%;
+  }
+
+  .feature-item {
+    max-width: 90%;
+    padding: 30px;
+    gap: 30px;
+    text-align: center;
+  }
+
+  .folder-card {
+    padding: 30px;
+    min-height: 200px;
+    justify-content: center;
+  }
+
+  section h2, .section h1 {
+    text-align: center;
+    width: 100%;
+  }
+
+  .middle-section {
+    padding: 5px;
+  }
+
+  .feature-title {
+    font-size: 1.7rem;
+  }
+
+  .folders-grid,
+  .sets-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    width: 100%;
+    max-width: 800px;
+    margin: 25px auto;
+    justify-content: center;
+  }
+
+  .flashcard-container {
+    max-width: 600px;
+    height: 320px;
+  }
+
+  .front,
+  .back {
+    font-size: 1.5rem;
+  }
+
+  .create-set,
+  .site-container{
+    max-width: 100% !important; 
+    width: 600px;
+    margin: 0 auto;
+    padding: 80px 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .card-input {
+    width: 100%;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .library-container {
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+    max-width: 100%;
+    width: 100%;
+    margin: 0 ;
+  }
+
+  .modal {
+    max-width: 500px;
+    padding: 35px;
+  }
+
+  .nav-link {
+    padding: 15px;
+    margin-bottom: 5px;
+  }
+}
