@@ -157,7 +157,7 @@ export default function SetCards() {
                     <div className="card-color-picker">
                       <button
                         className="material-symbols-outlined palette-icon"
-                        style={{ color: "black" }}
+                        style={{ color: "white¢" }}
                       >
                         palette
                       </button>

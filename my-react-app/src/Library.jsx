@@ -162,11 +162,7 @@ console.log('render library')
                 </div>
               </div>
             ))
-          ) : (
-            <p className="empty-message">
-              All sets are organized in folders or none cre
-            </p>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
