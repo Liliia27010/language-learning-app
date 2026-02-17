@@ -7,7 +7,6 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     globals: true,
-    setupFiles: ['./src/testing/setupTests.js'],
     browser: {
       enabled: true,
       provider: preview(),

@@ -854,10 +854,6 @@ button {
 
 }
 
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
 @media (min-width: 768px) and (max-width: 1024px) {
 
   .menu-window {
@@ -953,21 +949,6 @@ button {
 }
 
 @media (min-width: 1024px) {
-<<<<<<< HEAD:my-react-app/src/styles/App.css
-=======
-@media (min-width: 1025px) {
->>>>>>> Stashed changes:my-react-app/src/App.css
-=======
-@media (min-width: 1025px) {
->>>>>>> Stashed changes:my-react-app/src/App.css
-=======
-@media (min-width: 1025px) {
->>>>>>> Stashed changes:my-react-app/src/App.css
-=======
->>>>>>> 6891c1c68286bad7287d7d7f4d0a9ad75fba9c97:my-react-app/src/App.css
-=======
-@media (min-width: 1025px) {
->>>>>>> Stashed changes:my-react-app/src/App.css
 
   .menu-window {
     width: 20%;
@@ -976,13 +957,6 @@ button {
   .create-set,
   .site-container{
     max-width: 100% !important; 
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-<<<<<<< HEAD:my-react-app/src/styles/App.css
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-=======
->>>>>>> 6891c1c68286bad7287d7d7f4d0a9ad75fba9c97:my-react-app/src/App.css
     width: 1100px;
     margin: 0 auto;
     padding: 30px 30px;
@@ -992,14 +966,7 @@ button {
 
   .middle-section {
     padding: 30px;
-<<<<<<< HEAD:my-react-app/src/styles/App.css
-=======
-=======
->>>>>>> Stashed changes:my-react-app/src/App.css
-=======
->>>>>>> Stashed changes:my-react-app/src/App.css
-=======
->>>>>>> Stashed changes:my-react-app/src/App.css
+
     width: 600px;
     margin: 0 auto;
     padding: 80px 40px;
@@ -1021,18 +988,6 @@ button {
     display: flex;
     flex-direction: column;
     align-items: center;
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
->>>>>>> Stashed changes:my-react-app/src/App.css
-=======
->>>>>>> Stashed changes:my-react-app/src/App.css
-=======
->>>>>>> Stashed changes:my-react-app/src/App.css
-=======
->>>>>>> 6891c1c68286bad7287d7d7f4d0a9ad75fba9c97:my-react-app/src/App.css
-=======
->>>>>>> Stashed changes:my-react-app/src/App.css
   }
 
   .folders-grid,
@@ -1046,13 +1001,6 @@ button {
     margin: 40px auto;
   }
 
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-<<<<<<< HEAD:my-react-app/src/styles/App.css
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-=======
->>>>>>> 6891c1c68286bad7287d7d7f4d0a9ad75fba9c97:my-react-app/src/App.css
   .flashcard-container {
     max-width: 1000px;
     height: 20px;
@@ -1064,17 +1012,6 @@ button {
     height: 250px;
   }
 
-<<<<<<< HEAD:my-react-app/src/styles/App.css
-=======
->>>>>>> Stashed changes:my-react-app/src/App.css
-=======
->>>>>>> Stashed changes:my-react-app/src/App.css
-=======
->>>>>>> Stashed changes:my-react-app/src/App.css
-=======
->>>>>>> 6891c1c68286bad7287d7d7f4d0a9ad75fba9c97:my-react-app/src/App.css
-=======
->>>>>>> Stashed changes:my-react-app/src/App.css
   .folder-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
@@ -1086,13 +1023,6 @@ button {
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
   }
 
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-<<<<<<< HEAD:my-react-app/src/styles/App.css
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-<<<<<<< Updated upstream:my-react-app/src/styles/App.css
-=======
->>>>>>> 6891c1c68286bad7287d7d7f4d0a9ad75fba9c97:my-react-app/src/App.css
   .button {
     padding: 200px 70px;
   }
@@ -1101,29 +1031,14 @@ button {
     max-width: 400px;
     padding: 15px;
     justify-content: center;
-<<<<<<< HEAD:my-react-app/src/styles/App.css
-=======
+  }
   .create-btn {
     max-width: 350px;
     padding: 18px;
->>>>>>> Stashed changes:my-react-app/src/App.css
-=======
+  }
   .create-btn {
     max-width: 350px;
     padding: 18px;
->>>>>>> Stashed changes:my-react-app/src/App.css
-=======
-  .create-btn {
-    max-width: 350px;
-    padding: 18px;
->>>>>>> Stashed changes:my-react-app/src/App.css
-=======
->>>>>>> 6891c1c68286bad7287d7d7f4d0a9ad75fba9c97:my-react-app/src/App.css
-=======
-  .create-btn {
-    max-width: 350px;
-    padding: 18px;
->>>>>>> Stashed changes:my-react-app/src/App.css
     font-size: 1.2rem;
     margin: 20px auto;
   }
