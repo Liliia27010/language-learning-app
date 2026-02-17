@@ -15,7 +15,6 @@ import SetCards from "./SetCards";
 import Library from "./Library";
 import Folder from "./Folder";
 import FolderDetail from "./FolderDetail";
-import Learn from "./LearnCard";
 import "./App.css";
 import LearnCard from "./LearnCard";
 

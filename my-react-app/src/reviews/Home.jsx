@@ -6,9 +6,9 @@ import Live from "./images/Live.gif";
 import interactive from "./images/interactive.gif";
 import tests from "./images/tests.gif";
 
-import FeatureItem from "./components/Feature-item";
-import FeatureContainer from "./components/Feature-container";
-import Button from "./components/Button.jsx";
+import FeatureItem from "../components/Feature-item.jsx";
+import FeatureContainer from "../components/Feature-container.jsx";
+import Button from "../components/Button.jsx";
 
 export default function Home({ isLoggedIn, onOpenLogin }) {
   const navigate = useNavigate();

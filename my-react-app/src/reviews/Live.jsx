@@ -3,9 +3,9 @@ import { useNavigate } from "react-router";
 import Integration from "./images/Integration.gif";
 import Energize from "./images/Energize.gif";
 import master from "./images/master.gif";
-import FeatureItem from "./components/Feature-item";
-import Button from "./components/Button";
-import FeatureContainer from "./components/Feature-container";
+import FeatureItem from "../components/Feature-item";
+import Button from "../components/Button";
+import FeatureContainer from "../components/Feature-container";
 import "./App.css";
 
 export default function Live({ isLoggedIn, onOpenLogin }) {

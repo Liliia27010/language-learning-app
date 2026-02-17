@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { X, Loader } from "lucide-react";
-import { authClient } from "./lib/auth-client";
+import { authClient } from "../lib/auth-client";
 
 export default function Signup({ isOpen, onClose, onSwitchToLogin }) {
   const [name, setName] = useState("");
@@ -28,8 +28,8 @@ export default function Signup({ isOpen, onClose, onSwitchToLogin }) {
       return;
     }
 
-    if (digits < 6 || letters < 2) {
-      alert("Password must have at least 6 numbers and 2 letters!");
+    if (digits < 2 || letters < 6) {
+      alert("Password must have at least 2 numbers and 6 letters!");
       return;
     }
 
@@ -153,7 +153,7 @@ export default function Signup({ isOpen, onClose, onSwitchToLogin }) {
               required
             />
             <p style={{ fontSize: "11px", color: "#666" }}>
-              Requires 6 digits and 2 letters (Max 12)
+              Requires 2 digits and 6 letters (Max 12)
             </p>
           </div>
 

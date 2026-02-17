@@ -5,9 +5,9 @@ import "./App.css";
 import questionsGif from "./images/questions.gif";
 import getGif from "./images/get.gif";
 import takeGif from "./images/take.gif";
-import FeatureItem from "./components/Feature-item";
-import Button from "./components/Button";
-import FeatureContainer from "./components/Feature-container";
+import FeatureItem from "../components/Feature-item";
+import Button from "../components/Button";
+import FeatureContainer from "../components/Feature-container";
 
 export default function Test({ isLoggedIn, onOpenLogin }) {
   const navigate = useNavigate();

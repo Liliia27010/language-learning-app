@@ -40,9 +40,7 @@ router.post("/", async (req, res) => {
     const { name, description, sets} = req.body;
     const userId = req.user.id;
     //Check that name exist
-    //If it doesnt exist throw error "folder name is required"
     if (!name) {
-      //name === null || name === undefined || name === ''
       throw new Error("folder name is required!!!!");
     }
     const collection = db.collection("folders");
