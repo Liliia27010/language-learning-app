@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router";
 import { Menu as MenuIcon } from "lucide-react";
-import {  useAuth } from "./LoginContext";
+import { useAuth } from "./context/LoginContext";
 
-
-import Menu from "./Manu";
-import Login from "./Login";
-import Signup from "./Signup";
-import Flashcards from "./Flashcards";
-import Test from "./Test";
-import Live from "./Live";
-import Home from "./Home";
-import SetCards from "./SetCards";
-import Library from "./Library";
-import Folder from "./Folder";
-import FolderDetail from "./FolderDetail";
-import "./App.css";
-import LearnCard from "./LearnCard";
+import Menu from "./components/Manu";
+import Login from "./auth/Login";
+import Signup from "./auth/Signup";
+import Flashcards from "./reviews/Flashcards";
+import Test from "./reviews/Test";
+import Live from "./reviews/Live";
+import Home from "./reviews/Home";
+import SetCards from "./sets_manager/SetCards";
+import Library from "./sets_manager/Library";
+import Folder from "./sets_manager/Folder";
+import FolderDetail from "./sets_manager/FolderDetail";
+import "./styles/App.css";
+import LearnCard from "./sets_manager/LearnCard";
 
 
 export default function App() {

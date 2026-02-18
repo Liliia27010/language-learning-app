@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { X, Check } from "lucide-react";
 import { useNavigate } from "react-router";
-import { useLibrary } from "./LibraryContext";
+import { useLibrary } from "../context/LibraryContext";
 import "./App.css";
 
 export default function Folder() {

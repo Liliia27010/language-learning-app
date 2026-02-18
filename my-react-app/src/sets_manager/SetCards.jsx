@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import { useLibrary } from "./LibraryContext";
+import { useLibrary } from "../context/LibraryContext";
 
 export default function SetCards() {
   const { setId } = useParams();

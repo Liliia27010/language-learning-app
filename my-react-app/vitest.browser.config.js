@@ -11,7 +11,6 @@ export default defineConfig({
       enabled: true,
       provider: preview(),
       instances: [
-        { name: 'safari', browser: 'safari' },
         { name: 'chromium', browser: 'chromium' },
       ],
     },
