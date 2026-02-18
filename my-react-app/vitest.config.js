@@ -6,12 +6,11 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     globals: true,
-    setupFiles: ['./src/testing/setupTests.js'],
-    browser: {
-      enabled: true,
-      name: 'chromium',
-      provider: 'playwright',
-      headless: false,
+    coverage: {
+      provider: 'istanbul',
+      reporter: ['text', 'json', 'html'],
+      include: ['src/**/*'],
+      exclude: ['src/main.jsx', 'src/api/**/*'],
     },
   },
 });

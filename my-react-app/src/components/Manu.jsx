@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Link } from "react-router";
-import { useAuth } from "./LoginContext";
+import { useAuth } from "../context/LoginContext";
 
 export default function Menu({ isOpen, onClose }) {
   const { isLoggedIn, handleLogout } = useAuth();

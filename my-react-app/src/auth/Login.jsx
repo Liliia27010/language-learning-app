@@ -1,6 +1,6 @@
 import React, { useActionState } from "react";
 import { X, Loader } from "lucide-react";
-import { useAuth } from "./LoginContext";
+import { useAuth } from "../context/LoginContext";
 import { authClient } from "../lib/auth-client";
 
 export default function Login({ isOpen, onClose, onSwitchToSignup }) {
