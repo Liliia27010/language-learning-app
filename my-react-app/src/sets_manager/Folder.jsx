@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { X, Check } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useLibrary } from "../context/LibraryContext";
-import "./App.css";
+import "../styles/App.css";
 
 export default function Folder() {
   const [folderName, setFolderName] = useState("");

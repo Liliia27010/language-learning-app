@@ -47,7 +47,7 @@ export default function Login({ isOpen, onClose, onSwitchToSignup }) {
           <p>Please enter your details to log in.</p>
         </div>
         {state?.error && <p>{state.error}</p>}
-        <form action={formAction} className="form">
+        <form action={formAction} className="form" data-testid="login-form">
           <div className="input-field">
             <label htmlFor="email">Email Address</label>
             <input

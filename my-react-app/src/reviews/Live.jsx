@@ -1,23 +1,12 @@
-import React from "react";
-import { useNavigate } from "react-router";
-import Integration from "./images/Integration.gif";
-import Energize from "./images/Energize.gif";
-import master from "./images/master.gif";
+import Integration from "../images/Integration.gif";
+import Energize from "../images/Energize.gif";
+import master from "../images/master.gif";
 import FeatureItem from "../components/Feature-item";
 import Button from "../components/Button";
 import FeatureContainer from "../components/Feature-container";
-import "./App.css";
+import "../styles/App.css";
 
-export default function Live({ isLoggedIn, onOpenLogin }) {
-  const navigate = useNavigate();
-
-  const handleCreateClick = () => {
-    if (isLoggedIn) {
-      navigate("/create-set");
-    } else {
-      onOpenLogin();
-    }
-  };
+export default function Live() { 
   return (
     <div className="flashcards-container">
       <FeatureContainer
@@ -43,7 +32,7 @@ export default function Live({ isLoggedIn, onOpenLogin }) {
         description="Boost long-term retention through fast-paced active recall that makes vocabulary and concepts stick."
       />
 
-      <Button label="+ Create a Live game" onClick={handleCreateClick} />
+      <Button label="+ Create a Live game" />
     </div>
   );
 }

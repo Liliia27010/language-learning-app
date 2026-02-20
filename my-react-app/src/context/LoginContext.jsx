@@ -1,7 +1,8 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { authClient } from "../lib/auth-client"
-const AuthContext = createContext(null);
 
+
+export const AuthContext = createContext(null);
 export function useAuth() {
   return useContext(AuthContext);
 }

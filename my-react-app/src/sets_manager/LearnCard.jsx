@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { X } from "lucide-react";
 import { useLibrary } from "../context/LibraryContext";
-import "./App.css";
+import "../styles/App.css";
 
 export default function Learn() {
   const { setId } = useParams();
