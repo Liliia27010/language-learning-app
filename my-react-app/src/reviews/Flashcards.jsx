@@ -1,10 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router";
-import "./App.css";
+import "../styles/App.css";
 
-import importGif from "./images/import.gif";
-import customizeGif from "./images/customize.gif";
-import starGif from "./images/star.gif";
+import importGif from "../images/import.gif";
+import customizeGif from "../images/customize.gif";
+import starGif from "../images/star.gif";
 import FeatureItem from "../components/Feature-item";
 import FeatureContainer from "../components/Feature-container";
 import Button from "../components/Button";

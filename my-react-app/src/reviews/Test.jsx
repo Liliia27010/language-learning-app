@@ -1,24 +1,13 @@
-import React from "react";
-import { useNavigate } from "react-router";
-import "./App.css";
+import "../styles/App.css";
 
-import questionsGif from "./images/questions.gif";
-import getGif from "./images/get.gif";
-import takeGif from "./images/take.gif";
+import questionsGif from "../images/questions.gif";
+import getGif from "../images/get.gif";
+import takeGif from "../images/take.gif";
 import FeatureItem from "../components/Feature-item";
 import Button from "../components/Button";
 import FeatureContainer from "../components/Feature-container";
 
-export default function Test({ isLoggedIn, onOpenLogin }) {
-  const navigate = useNavigate();
-
-  const handleCreateClick = () => {
-    if (isLoggedIn) {
-      navigate("/create-set");
-    } else {
-      onOpenLogin();
-    }
-  };
+export default function Test() {
   return (
     <div className="test-container">
       <FeatureContainer
@@ -43,7 +32,7 @@ export default function Test({ isLoggedIn, onOpenLogin }) {
         title="Take a test, anywhere"
         description="With Test Mode available on both iOS and Android, you can get practice in wherever you go."
       />
-      <Button label="+ Create a Test" onClick={handleCreateClick} />
+      <Button label="+ Create a Test" />
     </div>
   );
 }

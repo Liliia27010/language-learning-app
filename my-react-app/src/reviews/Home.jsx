@@ -1,26 +1,13 @@
-import React from "react";
-import { useNavigate } from "react-router";
-import "./App.css";
+import "../styles/App.css";
 
-import Live from "./images/Live.gif";
-import interactive from "./images/interactive.gif";
-import tests from "./images/tests.gif";
+import Live from "../images/Live.gif";
+import interactive from "../images/interactive.gif";
+import tests from "../images/tests.gif";
 
 import FeatureItem from "../components/Feature-item.jsx";
 import FeatureContainer from "../components/Feature-container.jsx";
-import Button from "../components/Button.jsx";
 
-export default function Home({ isLoggedIn, onOpenLogin }) {
-  const navigate = useNavigate();
-
-  const handleCreateClick = () => {
-    if (isLoggedIn) {
-      navigate("/create-set");
-    } else {
-      onOpenLogin();
-    }
-  };
-
+export default function Home() {
   return (
     <>
       <FeatureContainer

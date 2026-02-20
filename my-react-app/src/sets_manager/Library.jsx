@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router";
-import "./App.css";
+import "../styles/App.css";
 import { useLibrary } from "../context/LibraryContext";
 
 export default function Library() {
