@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { authClient } from "../lib/auth-client";
 
-const LibraryContext = createContext(null);
+export const LibraryContext = createContext(null);
 
 export function useLibrary() {
   return useContext(LibraryContext);
