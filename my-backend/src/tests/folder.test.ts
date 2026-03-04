@@ -3,7 +3,6 @@ import { jest, describe, it, expect } from '@jest/globals';
 import { ObjectId } from 'mongodb';
 import app from '../app.js'; 
 import auth, {db} from '../lib/auth.js';
-import { set } from 'supertest/lib/cookies.js';
 
 const TEST_USER_ID = new ObjectId();
 
@@ -266,7 +265,7 @@ describe('Folder API', () => {
     mockCollection.updateOne.mockResolvedValue(null);
 
     const response = await request(app)
-      .put(`/api/folder/${fakeFolderId.toString()}`)
+      .put(`/api/folder/${fakeFolderId}`)
       .send(updateData);
 
     expect(response.status).toBe(404);
@@ -281,7 +280,7 @@ describe('Folder API', () => {
     mockCollection.updateOne.mockRejectedValueOnce(new Error("Database error"));
 
     const response = await request(app)
-      .put(`/api/folder/${fakeFolderId.toString()}`)
+      .put(`/api/folder/${fakeFolderId}`)
       .send(updateData);
 
     expect(response.status).toBe(500);
@@ -297,10 +296,36 @@ describe('Folder API', () => {
     mockCollection.deleteOne.mockResolvedValue({ deletedCount: 1 });
 
     const response = await request(app)
-      .delete(`/api/folder/${fakeFolderId.toString()}`);
+    .delete(`/api/folder/${fakeFolderId}`);
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
     expect(response.body.message).toBe("Folder deleted!");
+    });
+
+    it('DELETE /api/folder/:folderId - should return 404 if folder was not deleted', async () => {
+        const fakeFolderId = new ObjectId();
+
+        mockCollection.deleteOne.mockResolvedValue({ deletedCount: 0});
+
+        const response = await request(app)
+        .delete(`/api/folder/${fakeFolderId}`);
+        
+        expect(response.status).toBe(404);
+        expect(response.body.success).toBe(false);
+        expect(response.body.message).toBe("Folder not found");  
+    });
+
+    it('DELETE /api/folder/:folderId - should retirn 500 if database fails', async () => {
+        const fakeFolderId = new ObjectId();
+
+        mockCollection.deleteOne.mockRejectedValue(new Error("DB Error"));
+
+        const response = await request(app)
+        .delete(`/api/folder/${fakeFolderId}`);
+        
+        expect(response.status).toBe(500);
+        expect(response.body.success).toBe(false);
+        expect(response.body.message).toBe("Delete failed");
     });
   });

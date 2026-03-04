@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { jest, describe, it, expect } from '@jest/globals';
-import { ObjectId } from 'mongodb';
+import { Collection, ObjectId } from 'mongodb';
 import app from '../app.js'; 
 import auth, {db} from '../lib/auth.js';
 const TEST_USER_ID = new ObjectId().toString(); // Replace with a valid user ID from your database
@@ -12,7 +12,7 @@ const mockCollection = {
   findOne: jest.fn(),
   updateOne: jest.fn(),
   deleteOne: jest.fn(),
-};
+}; 
 
 describe('SetCards API', () => {
 
@@ -64,7 +64,7 @@ describe('SetCards API', () => {
 
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
-    expect(response.body[0]).toHaveProperty('name', fakeData[0].name);    
+    expect(response.body[0]).toHaveProperty('name', fakeData[0]!.name);    
   });
 
 
@@ -75,7 +75,7 @@ describe('SetCards API', () => {
 
     expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
-    expect(response.body.message).toBe("Failed to fetch sets");
+    expect(response.body.message).toBe("Invalid ID format");
   });
 
 
