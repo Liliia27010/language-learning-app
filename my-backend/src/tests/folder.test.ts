@@ -1,14 +1,39 @@
-import request from 'supertest';
-import { jest, describe, it, expect } from '@jest/globals';
-import { ObjectId } from 'mongodb';
-import app from '../app.js'; 
-import auth, {db} from '../lib/auth.js';
-import { set } from 'supertest/lib/cookies.js';
+import request from "supertest";
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+} from "@jest/globals";
+import type {
+  InsertOneResult,
+  UpdateResult,
+  DeleteResult,
+  Document,
+  Collection,
+  WithId,
+} from "mongodb";
+import { ObjectId } from "mongodb";
+import app from "../app.js";
+import auth, { db } from "../lib/auth.js";
+
+interface MockCollection {
+  aggregate: jest.Mock<(...args: unknown[]) => MockCollection>;
+  toArray: jest.Mock<() => Promise<WithId<Document>[]>>;
+  insertOne: jest.Mock<
+    (...args: unknown[]) => Promise<InsertOneResult<Document>>
+  >;
+  findOne: jest.Mock<(...args: unknown[]) => Promise<WithId<Document> | null>>;
+  updateOne: jest.Mock<(...args: unknown[]) => Promise<UpdateResult<Document>>>;
+  deleteOne: jest.Mock<(...args: unknown[]) => Promise<DeleteResult>>;
+}
 
 const TEST_USER_ID = new ObjectId();
 
-const mockCollection = {
-  aggregate: jest.fn().mockReturnThis(),
+const mockCollection: MockCollection = {
+  aggregate: jest.fn<MockCollection["aggregate"]>().mockReturnThis(),
   toArray: jest.fn(),
   insertOne: jest.fn(),
   findOne: jest.fn(),
@@ -16,11 +41,11 @@ const mockCollection = {
   deleteOne: jest.fn(),
 };
 
-describe('Folder API', () => {
- // 2. Intercept Better Auth's getSession method before each test
-    beforeEach(() => {
-      jest.spyOn(auth.api, "getSession").mockResolvedValue({
-      session: { 
+describe("Folder API", () => {
+  // 2. Intercept Better Auth's getSession method before each test
+  beforeEach(() => {
+    jest.spyOn(auth.api, "getSession").mockResolvedValue({
+      session: {
         id: "fake-session-id",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -28,17 +53,19 @@ describe('Folder API', () => {
         expiresAt: new Date(Date.now() + 100000),
         token: "fake-token",
       },
-      user: { 
-        id: TEST_USER_ID.toString(), 
+      user: {
+        id: TEST_USER_ID.toString(),
         email: "test@example.com",
         name: "Test User",
         emailVerified: true,
         createdAt: new Date(),
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     });
-   // 3. Intercept all MongoDB database calls!
-    jest.spyOn(db, "collection").mockReturnValue(mockCollection);
+    // 3. Intercept all MongoDB database calls!
+    jest
+      .spyOn(db, "collection")
+      .mockReturnValue(mockCollection as unknown as Collection);
   });
 
   afterEach(() => {
@@ -47,10 +74,9 @@ describe('Folder API', () => {
     jest.restoreAllMocks();
   });
 
+  // Code for test Get all folders
 
-// Code for test Get all folders
-
-  it('GET /api/folder/:folderId - should return folder data with sets', async () => {
+  it("GET /api/folder/:folderId - should return folder data with sets", async () => {
     const fakeFolderId = new ObjectId();
     const fakeFolderData = {
       _id: fakeFolderId,
@@ -61,78 +87,91 @@ describe('Folder API', () => {
         {
           _id: new ObjectId(),
           name: "Mocked Set 1",
-        }
-      ]
+        },
+      ],
     };
 
     mockCollection.toArray.mockResolvedValue([fakeFolderData]);
 
-    const response = await request(app).get(`/api/folder/${fakeFolderId.toString()}`);
+    const response = await request(app).get(
+      `/api/folder/${fakeFolderId.toString()}`,
+    );
 
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('name', "Mocked Folder");
+    expect(response.body).toHaveProperty("name", "Mocked Folder");
     expect(Array.isArray(response.body.sets)).toBe(true);
   });
 
-  it('GET /api/folders - should return all folders', async () => {
+  it("GET /api/folders - should return all folders", async () => {
     mockCollection.toArray.mockResolvedValue([]);
-    const response = await request(app).get('/api/folder');
+    const response = await request(app).get("/api/folder");
     expect(response.status).toBe(200);
   });
 
-  it('GET /api/folder - should return 500 if database fails to fetch all folders', async () => {
+  it("GET /api/folder - should return 500 if database fails to fetch all folders", async () => {
     mockCollection.toArray.mockRejectedValueOnce(new Error("Fatal DB Error"));
 
-    const response = await request(app).get('/api/folder');
+    const response = await request(app).get("/api/folder");
 
     expect(response.status).toBe(500);
     expect(response.body.success).toBe(false);
   });
 
-// Code for test Create a new folder
+  // Code for test Create a new folder
 
-  it('POST /api/folder - should create a new folder', async () => {
-    const mockInsertedId = new ObjectId();  
+  it("POST /api/folder - should create a new folder", async () => {
+    const mockInsertedId = new ObjectId();
     const setId1 = new ObjectId();
     const setId2 = new ObjectId();
 
     const newFolderData = {
       name: "New Test Folder",
       description: "A folder created during testing",
-      setIds: [setId1.toString(), setId2.toString()]
+      setIds: [setId1.toString(), setId2.toString()],
     };
 
-    mockCollection.insertOne.mockResolvedValue({ insertedId: mockInsertedId });
+    mockCollection.insertOne.mockResolvedValue({
+      acknowledged: true,
+      insertedId: mockInsertedId,
+    });
 
-    const response = await request(app)
-      .post('/api/folder')
-      .send(newFolderData);
+    const response = await request(app).post("/api/folder").send(newFolderData);
 
     expect(response.status).toBe(201);
     expect(response.body.success).toBe(true);
     expect(response.body.id).toBe(mockInsertedId.toString());
-    expect(mockCollection.insertOne).toHaveBeenCalledWith(expect.objectContaining({userId: new ObjectId(TEST_USER_ID.toString())}));
-    });
+    expect(mockCollection.insertOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: new ObjectId(TEST_USER_ID.toString()),
+      }),
+    );
+  });
 
-    it('POST /api/folder - should return 500 if database fails to create folder', async () => { 
+  it("POST /api/folder - should return 500 if database fails to create folder", async () => {
     mockCollection.insertOne.mockRejectedValueOnce(new Error("Database error"));
 
     const response = await request(app)
-      .post('/api/folder')
+      .post("/api/folder")
       .send({ name: "Test Folder" });
 
     expect(response.status).toBe(500);
     expect(response.body.success).toBe(false);
     expect(response.body.message).toBe("Failed to create folder");
-    });
+  });
 
-// Code for test Add a set to folder
+  // Code for test Add a set to folder
 
-  it('PATCH /api/folder/:folderId/add-set - should add a set to the folder', async () => {
+  it("PATCH /api/folder/:folderId/add-set - should add a set to the folder", async () => {
     const fakeFolderId = new ObjectId();
     const fakeSetId = new ObjectId();
 
-    mockCollection.updateOne.mockResolvedValue({ modifiedCount: 1 });
+    mockCollection.updateOne.mockResolvedValue({
+      acknowledged: true,
+      matchedCount: 1,
+      modifiedCount: 1,
+      upsertedCount: 0,
+      upsertedId: null,
+    });
 
     const response = await request(app)
       .patch(`/api/folder/${fakeFolderId.toString()}/add-set`)
@@ -142,15 +181,21 @@ describe('Folder API', () => {
     expect(response.body.success).toBe(true);
     expect(mockCollection.updateOne).toHaveBeenCalledWith(
       { _id: new ObjectId(fakeFolderId.toString()) },
-      { $addToSet: { sets: new ObjectId(fakeSetId.toString()) } }
+      { $addToSet: { sets: new ObjectId(fakeSetId.toString()) } },
     );
-    });
-    
-    it('PATCH /api/folder/:folderId/add-set - should return 400 if set already in folder', async () => {    
+  });
+
+  it("PATCH /api/folder/:folderId/add-set - should return 400 if set already in folder", async () => {
     const fakeFolderId = new ObjectId();
     const fakeSetId = new ObjectId();
 
-    mockCollection.updateOne.mockResolvedValue({ modifiedCount: 0 });
+    mockCollection.updateOne.mockResolvedValue({
+      acknowledged: true,
+      matchedCount: 1,
+      modifiedCount: 0,
+      upsertedCount: 0,
+      upsertedId: null,
+    });
 
     const response = await request(app)
       .patch(`/api/folder/${fakeFolderId.toString()}/add-set`)
@@ -158,12 +203,14 @@ describe('Folder API', () => {
 
     expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
-    expect(response.body.message).toBe("Set already in folder or folder not found");        
-    });
-    
-    it('PATCH /api/folder/:folderId/add-set - should return 500 if database fails to add set', async () => {    
+    expect(response.body.message).toBe(
+      "Set already in folder or folder not found",
+    );
+  });
+
+  it("PATCH /api/folder/:folderId/add-set - should return 500 if database fails to add set", async () => {
     const fakeFolderId = new ObjectId();
-    const fakeSetId = new ObjectId();   
+    const fakeSetId = new ObjectId();
     mockCollection.updateOne.mockRejectedValueOnce(new Error("Database error"));
 
     const response = await request(app)
@@ -172,69 +219,82 @@ describe('Folder API', () => {
 
     expect(response.status).toBe(500);
     expect(response.body.success).toBe(false);
-    });
-    
-// Code for test Get a specific folder  
+  });
 
-    it('GET /api/folder/:folderId - should return a specific folder by ID', async () => {
+  // Code for test Get a specific folder
+
+  it("GET /api/folder/:folderId - should return a specific folder by ID", async () => {
     const fakeFolderId = new ObjectId();
     const fakeFolderData = {
-      _id: fakeFolderId, 
-      name: "One Folder", 
+      _id: fakeFolderId,
+      name: "One Folder",
       userId: TEST_USER_ID,
       sets: [
-        {_id: new ObjectId(),name: "Mocked Set 1",},
-        {_id: new ObjectId(),name: "Mocked Set 2",}
-      ]
+        { _id: new ObjectId(), name: "Mocked Set 1" },
+        { _id: new ObjectId(), name: "Mocked Set 2" },
+      ],
     };
 
     mockCollection.toArray.mockResolvedValue([fakeFolderData]);
 
-    const response = await request(app).get(`/api/folder/${fakeFolderId.toString()}`);
+    const response = await request(app).get(
+      `/api/folder/${fakeFolderId.toString()}`,
+    );
 
     expect(response.status).toBe(200);
     expect(response.body.name).toBe("One Folder");
     expect(Array.isArray(response.body.sets)).toBe(true);
 
     expect(mockCollection.aggregate).toHaveBeenCalledWith(
-          expect.arrayContaining([
-            expect.objectContaining({
-              $match: { 
-                _id: fakeFolderId, 
-                userId: new ObjectId(TEST_USER_ID.toString()) 
-              }
-            })
-          ])
-        );
-    });
+      expect.arrayContaining([
+        expect.objectContaining({
+          $match: {
+            _id: fakeFolderId,
+            userId: new ObjectId(TEST_USER_ID.toString()),
+          },
+        }),
+      ]),
+    );
+  });
 
-    it('GET /api/folder/:folderId - should return 404 if folder not found', async () => {
+  it("GET /api/folder/:folderId - should return 404 if folder not found", async () => {
     const fakeFolderId = new ObjectId();
 
     mockCollection.toArray.mockResolvedValue([]);
 
-    const response = await request(app).get(`/api/folder/${fakeFolderId.toString()}`);
+    const response = await request(app).get(
+      `/api/folder/${fakeFolderId.toString()}`,
+    );
 
     expect(response.status).toBe(404);
     expect(response.body.success).toBe(false);
     expect(response.body.message).toBe("Folder not found");
-    });
+  });
 
-    it('GET /api/folder/:folderId - should return 400 for invalid ID format', async () => {
+  it("GET /api/folder/:folderId - should return 400 for invalid ID format", async () => {
     const response = await request(app).get(`/api/folder/invalid-id`);
 
     expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
     expect(response.body.message).toBe("Invalid ID format");
-    });
+  });
 
-// Code for test Update a folder
+  // Code for test Update a folder
 
-    it('PUT /api/folder/:folderId - should update a folder', async () => {
+  it("PUT /api/folder/:folderId - should update a folder", async () => {
     const fakeFolderId = new ObjectId();
-    const updateData = { name: "Updated Folder Name", description: "Updated Description" };
-    
-    mockCollection.updateOne.mockResolvedValue({ matchedCount: 1 });
+    const updateData = {
+      name: "Updated Folder Name",
+      description: "Updated Description",
+    };
+
+    mockCollection.updateOne.mockResolvedValue({
+      acknowledged: true,
+      matchedCount: 1,
+      modifiedCount: 1,
+      upsertedCount: 0,
+      upsertedId: null,
+    });
 
     const response = await request(app)
       .put(`/api/folder/${fakeFolderId.toString()}`)
@@ -255,15 +315,20 @@ describe('Folder API', () => {
           description: updateData.description,
           updatedAt: expect.any(Date),
         },
-      }
+      },
     );
-    });
+  });
 
-    it('PUT /api/folder/:folderId - should return 404 if folder not found', async () => {
+  it("PUT /api/folder/:folderId - should return 404 if folder not found", async () => {
     const fakeFolderId = new ObjectId();
-    const updateData = { name: "Updated Folder Name", description: "Updated Description" };
-    
-    mockCollection.updateOne.mockResolvedValue(null);
+    const updateData = {
+      name: "Updated Folder Name",
+      description: "Updated Description",
+    };
+
+    mockCollection.updateOne.mockResolvedValue(
+      null as unknown as UpdateResult<Document>,
+    );
 
     const response = await request(app)
       .put(`/api/folder/${fakeFolderId.toString()}`)
@@ -272,12 +337,15 @@ describe('Folder API', () => {
     expect(response.status).toBe(404);
     expect(response.body.success).toBe(false);
     expect(response.body.message).toBe("Folder not found");
-    });
+  });
 
-    it('PUT /api/folder/:folderId - should return 500 if database fails to update folder', async () => {
+  it("PUT /api/folder/:folderId - should return 500 if database fails to update folder", async () => {
     const fakeFolderId = new ObjectId();
-    const updateData = { name: "Updated Folder Name", description: "Updated Description" };
-    
+    const updateData = {
+      name: "Updated Folder Name",
+      description: "Updated Description",
+    };
+
     mockCollection.updateOne.mockRejectedValueOnce(new Error("Database error"));
 
     const response = await request(app)
@@ -287,20 +355,24 @@ describe('Folder API', () => {
     expect(response.status).toBe(500);
     expect(response.body.success).toBe(false);
     expect(response.body.message).toBe("Update failed");
-    });
+  });
 
-// Code for test Delete a folder
+  // Code for test Delete a folder
 
-    it('DELETE /api/folder/:folderId - should delete a folder', async () => {
+  it("DELETE /api/folder/:folderId - should delete a folder", async () => {
     const fakeFolderId = new ObjectId();
 
-    mockCollection.deleteOne.mockResolvedValue({ deletedCount: 1 });
+    mockCollection.deleteOne.mockResolvedValue({
+      acknowledged: true,
+      deletedCount: 1,
+    });
 
-    const response = await request(app)
-      .delete(`/api/folder/${fakeFolderId.toString()}`);
+    const response = await request(app).delete(
+      `/api/folder/${fakeFolderId.toString()}`,
+    );
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
     expect(response.body.message).toBe("Folder deleted!");
-    });
   });
+});
