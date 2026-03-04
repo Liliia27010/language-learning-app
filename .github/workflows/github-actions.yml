@@ -1,5 +1,5 @@
 name: github-actions
-run-name: ${{ github.actor }} is learning GitHub Actions
+run-name: ${{ github.actor }} is learning GitHub Action
 on:
   pull_request:
     branches: [ main ]
