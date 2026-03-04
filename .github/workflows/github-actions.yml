@@ -1,8 +1,10 @@
 name: github-actions
 run-name: ${{ github.actor }} is learning GitHub Actions
-on [pull-requests]
+on:
+  pull_request:
+    branches: [ main ]
 jobs:
-check-bats-version:
+  check-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -11,3 +13,4 @@ check-bats-version:
           node-version: '20'
       - run: npm test
       - run: bats -v
+      
