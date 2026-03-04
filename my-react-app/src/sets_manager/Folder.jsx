@@ -11,15 +11,8 @@ export default function Folder() {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
-  const { setFolders, savedSets } = useLibrary();
+  const { setFolders } = useLibrary();
 
-  const toggleSetSelection = (setId) => {
-    setSelectedSets((prev) =>
-      prev.includes(setId) 
-        ? prev.filter((id) => id !== setId) 
-        : [...prev, setId]                
-    );
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -77,7 +70,7 @@ export default function Folder() {
         </div>
 
         <form className="form" onSubmit={handleSubmit}>
-          <div className="input-field">
+          <div className="input-field" >
             <label>Folder Name</label>
             <input
               type="text"
@@ -86,10 +79,11 @@ export default function Folder() {
               onChange={(e) => setFolderName(e.target.value)}
               placeholder="Fruits"
               required
+              data-testid="name-field"
             />
           </div>
 
-          <div className="input-field">
+          <div className="input-field" >
             <label>Description (Optional)</label>
             <input
               type="text"
@@ -97,6 +91,7 @@ export default function Folder() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="For the test on Friday"
+              data-testid="description-field"
             />
           </div>
 
