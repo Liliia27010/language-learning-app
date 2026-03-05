@@ -15,9 +15,11 @@ const run = () => {
 
     app.use(
       cors({
-        origin: process.env.FRONTEND_URL || "http://localhost:5173", // Replace with your frontend's origin
-        methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
-        credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+        origin:
+          process.env.FRONTEND_URL?.replace(/\/$/, "") ||
+          "http://localhost:5173",
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        credentials: true,
         allowedHeaders: ["Content-Type", "Authorization"],
       }),
     );

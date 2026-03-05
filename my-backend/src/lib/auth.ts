@@ -31,14 +31,18 @@ export const userAuth = async (
     });
 
     if (!session || !session.user) {
-      return res.status(401).json({ success: false, message: "You must be logged in!" });
+      return res
+        .status(401)
+        .json({ success: false, message: "You must be logged in!" });
     }
 
     req.user = session.user;
     next();
   } catch (error) {
     console.error("Auth Middleware Error:", error);
-    res.status(500).json({ success: false, message: "Server Error during authentication" });
+    res
+      .status(500)
+      .json({ success: false, message: "Server Error during authentication" });
   }
 };
 
@@ -53,20 +57,22 @@ export const db = client.db("Finlearn");
 
 const auth = betterAuth({
   database: mongodbAdapter(db),
-  baseURL: "http://localhost:3000",
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   basePath: "/api/auth",
-  trustedOrigins: ["http://localhost:5173"],
+  trustedOrigins: [
+    process.env.FRONTEND_URL?.replace(/\/$/, "") || "http://localhost:5173",
+  ],
   emailAndPassword: {
     enabled: true,
   },
   user: {
-        additionalFields: {
-            userType: {
-                type: "string",
-                required: false,
-            },
-        },
+    additionalFields: {
+      userType: {
+        type: "string",
+        required: false,
+      },
     },
+  },
 });
 
 export default auth;
