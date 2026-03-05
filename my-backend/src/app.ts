@@ -7,7 +7,7 @@ import setcardsRouter from "./lib/setcards.js";
 import { toNodeHandler } from "better-auth/node";
 
 const app = express();
-
+console.log("FRONTEND : ", process.env.FRONTEND_URL);
 app.use(
   cors({
     origin:
