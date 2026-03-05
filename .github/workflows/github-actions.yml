@@ -12,6 +12,7 @@ jobs:
         with:
           node-version: '20'
       - run: npm install
+      - run: npm run
       - run: npm test
       - run: bats -v
       
