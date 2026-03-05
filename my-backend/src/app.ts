@@ -11,7 +11,7 @@ const app = express();
 console.log('FRONTEND : ',process.env.FRONTEND_URL)
 app.use(
     cors({
-   origin: process.env.FRONTEND_URL, // Replace with your frontend's origin
+    origin: process.env.FRONTEND_URL, // Replace with your frontend's origin
     methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
     allowedHeaders: ["Content-Type", "Authorization"],
