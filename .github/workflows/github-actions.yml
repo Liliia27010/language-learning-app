@@ -6,26 +6,28 @@ on:
 jobs:
   check-backend-tests:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./my-backend
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: cd my-backend
-      - run: pwd
-      - run: cat package.json
       - run: npm install
       - run: npm test
   check-frontend-tests:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./my-react-app
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: cd my-react-app
-      - run: pwd
-      - run: cat package.json
       - run: npm install
       - run: npm run
       
