@@ -55,7 +55,7 @@ const auth = betterAuth({
   database: mongodbAdapter(db),
   baseURL: "http://localhost:3000",
   basePath: "/api/auth",
-  trustedOrigins: ["http://localhost:5173"],
+  trustedOrigins: [process.env.FRONTEND_URL || ''],
   emailAndPassword: {
     enabled: true,
   },
