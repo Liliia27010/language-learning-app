@@ -135,7 +135,7 @@ router.put("/:folderId", async (req, res) => {
         },
       },
     );
-    if (!updateFolder) {
+    if (updateFolder.matchedCount === 0) {
       return res.status(404).json({ success: false, message: "Folder not found" });
     }
 
@@ -158,7 +158,7 @@ router.delete("/:folderId", async (req, res) => {
       _id: new ObjectId(folderId),
       userId: new ObjectId(userId),
     });
-    if (!deleteFolder) {
+    if (deleteFolder.deletedCount === 0) {
       return res.status(404).json({ success: false, message: "Folder not found" });
     }
 
