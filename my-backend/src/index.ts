@@ -1,11 +1,10 @@
 import "dotenv/config";
 
-import express from "express";
+import app from "./app.js";
 
 const run = () => {
   try {
     console.log("starting server");
-    const app = express();
 
     const PORT = 3000;
     app.listen(PORT, () => {
