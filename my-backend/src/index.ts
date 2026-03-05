@@ -12,7 +12,7 @@ const run = () => {
   try {
     console.log("starting server");
     const app = express();
-
+    console.log('FRONTEND URL', process.env.FRONTEND_URL)
     app.use(
       cors({
         origin: process.env.FRONTEND_URL || "http://localhost:5173", // Replace with your frontend's origin
