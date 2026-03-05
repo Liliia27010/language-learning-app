@@ -1,35 +1,8 @@
-import request from "supertest";
-import {
-  jest,
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-} from "@jest/globals";
-import type {
-  InsertOneResult,
-  UpdateResult,
-  DeleteResult,
-  Document,
-  Collection,
-  WithId,
-} from "mongodb";
-import { ObjectId } from "mongodb";
-import app from "../app.js";
-import auth, { db } from "../lib/auth.js";
-
-interface MockCollection {
-  find: jest.Mock<(...args: unknown[]) => MockCollection>;
-  toArray: jest.Mock<() => Promise<WithId<Document>[]>>;
-  insertOne: jest.Mock<
-    (...args: unknown[]) => Promise<InsertOneResult<Document>>
-  >;
-  findOne: jest.Mock<(...args: unknown[]) => Promise<WithId<Document> | null>>;
-  updateOne: jest.Mock<(...args: unknown[]) => Promise<UpdateResult<Document>>>;
-  deleteOne: jest.Mock<(...args: unknown[]) => Promise<DeleteResult>>;
-}
-
+import request from 'supertest';
+import { jest, describe, it, expect } from '@jest/globals';
+import { ObjectId } from 'mongodb';
+import app from '../app.js'; 
+import auth, {db} from '../lib/auth.js';
 const TEST_USER_ID = new ObjectId().toString(); // Replace with a valid user ID from your database
 
 const mockCollection: MockCollection = {
@@ -39,7 +12,7 @@ const mockCollection: MockCollection = {
   findOne: jest.fn(),
   updateOne: jest.fn(),
   deleteOne: jest.fn(),
-};
+}; 
 
 describe("SetCards API", () => {
   beforeEach(() => {
@@ -93,7 +66,7 @@ describe("SetCards API", () => {
 
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
-    expect(response.body[0]).toHaveProperty("name", fakeData[0]!.name);
+    expect(response.body[0]).toHaveProperty('name', fakeData[0].name);    
   });
 
   it("GET /api/setcards - should return 400 when database fails", async () => {

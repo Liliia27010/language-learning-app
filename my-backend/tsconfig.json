@@ -12,6 +12,7 @@
     /* Module Resolution Strategy: */
     "moduleResolution": "NodeNext", // Resolves modules using Node’s ESM strategy
     "moduleDetection": "force", // Forces TypeScript to treat files as modules
+    "isolatedModules": true,
 
     /* Interoperability and File Consistency: */
     "esModuleInterop": true, // Ensures compatibility between CommonJS and ESM modules

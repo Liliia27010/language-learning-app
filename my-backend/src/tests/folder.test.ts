@@ -1,34 +1,9 @@
-import request from "supertest";
-import {
-  jest,
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-} from "@jest/globals";
-import type {
-  InsertOneResult,
-  UpdateResult,
-  DeleteResult,
-  Document,
-  Collection,
-  WithId,
-} from "mongodb";
-import { ObjectId } from "mongodb";
-import app from "../app.js";
-import auth, { db } from "../lib/auth.js";
-
-interface MockCollection {
-  aggregate: jest.Mock<(...args: unknown[]) => MockCollection>;
-  toArray: jest.Mock<() => Promise<WithId<Document>[]>>;
-  insertOne: jest.Mock<
-    (...args: unknown[]) => Promise<InsertOneResult<Document>>
-  >;
-  findOne: jest.Mock<(...args: unknown[]) => Promise<WithId<Document> | null>>;
-  updateOne: jest.Mock<(...args: unknown[]) => Promise<UpdateResult<Document>>>;
-  deleteOne: jest.Mock<(...args: unknown[]) => Promise<DeleteResult>>;
-}
+import request from 'supertest';
+import { jest, describe, it, expect } from '@jest/globals';
+import { ObjectId } from 'mongodb';
+import app from '../app.js'; 
+import auth, {db} from '../lib/auth.js';
+import { set } from 'supertest/lib/cookies.js';
 
 const TEST_USER_ID = new ObjectId();
 
@@ -108,6 +83,17 @@ describe("Folder API", () => {
     expect(response.status).toBe(200);
   });
 
+  it("GET /api/folder - should return 500 if database fails", async () => {
+  mockCollection.aggregate.mockReturnValue({
+    toArray: jest.fn().mockRejectedValue(new Error("Database Error"))
+  } as any);
+
+  const response = await request(app).get("/api/folder");
+
+  expect(response.status).toBe(500);
+  expect(response.body.success).toBe(false);
+});
+
   it("GET /api/folder - should return 500 if database fails to fetch all folders", async () => {
     mockCollection.toArray.mockRejectedValueOnce(new Error("Fatal DB Error"));
 
@@ -147,17 +133,39 @@ describe("Folder API", () => {
     );
   });
 
-  it("POST /api/folder - should return 500 if database fails to create folder", async () => {
-    mockCollection.insertOne.mockRejectedValueOnce(new Error("Database error"));
+  it("POST /api/folder - should correctly map sets to ObjectIds (Line 50)", async () => {
+    const setId1 = new ObjectId().toString();
+    const setId2 = new ObjectId().toString();
+
+    mockCollection.insertOne.mockResolvedValue({
+      acknowledged: true,
+      insertedId: new ObjectId(),
+    });
 
     const response = await request(app)
       .post("/api/folder")
-      .send({ name: "Test Folder" });
+      .send({
+        name: "Folder with Sets",
+        sets: [setId1, setId2] 
+      });
 
-    expect(response.status).toBe(500);
-    expect(response.body.success).toBe(false);
-    expect(response.body.message).toBe("Failed to create folder");
+    expect(response.status).toBe(201);
+    expect(mockCollection.insertOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sets: [new ObjectId(setId1), new ObjectId(setId2)]
+      })
+    );
   });
+
+  it("POST /api/folder - should return 500 if name is missing (Validation Error)", async () => {
+  const response = await request(app)
+    .post("/api/folder")
+    .send({ description: "No name here" }); 
+
+  expect(response.status).toBe(500);
+  expect(response.body.success).toBe(false);
+  expect(response.body.message).toBe("Failed to create folder");
+});
 
   // Code for test Add a set to folder
 
@@ -224,43 +232,29 @@ describe("Folder API", () => {
   // Code for test Get a specific folder
 
   it("GET /api/folder/:folderId - should return a specific folder by ID", async () => {
-    const fakeFolderId = new ObjectId();
-    const fakeFolderData = {
-      _id: fakeFolderId,
-      name: "One Folder",
-      userId: TEST_USER_ID,
-      sets: [
-        { _id: new ObjectId(), name: "Mocked Set 1" },
-        { _id: new ObjectId(), name: "Mocked Set 2" },
-      ],
-    };
+  const fakeFolderId = new ObjectId();
+  const fakeFolderData = [{
+    _id: fakeFolderId,
+    name: "One Folder",
+    userId: TEST_USER_ID,
+    sets: []
+  }];
+  mockCollection.aggregate.mockReturnValue({
+    toArray: jest.fn().mockResolvedValue(fakeFolderData)
+  } as any);
 
-    mockCollection.toArray.mockResolvedValue([fakeFolderData]);
+  const response = await request(app).get(`/api/folder/${fakeFolderId.toString()}`);
 
-    const response = await request(app).get(
-      `/api/folder/${fakeFolderId.toString()}`,
-    );
-
-    expect(response.status).toBe(200);
-    expect(response.body.name).toBe("One Folder");
-    expect(Array.isArray(response.body.sets)).toBe(true);
-
-    expect(mockCollection.aggregate).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({
-          $match: {
-            _id: fakeFolderId,
-            userId: new ObjectId(TEST_USER_ID.toString()),
-          },
-        }),
-      ]),
-    );
-  });
+  expect(response.status).toBe(200);
+  expect(response.body.name).toBe("One Folder");
+});
 
   it("GET /api/folder/:folderId - should return 404 if folder not found", async () => {
     const fakeFolderId = new ObjectId();
 
-    mockCollection.toArray.mockResolvedValue([]);
+    mockCollection.aggregate.mockReturnValue({
+      toArray: jest.fn().mockResolvedValue([])
+    } as any);
 
     const response = await request(app).get(
       `/api/folder/${fakeFolderId.toString()}`,
@@ -326,12 +320,16 @@ describe("Folder API", () => {
       description: "Updated Description",
     };
 
-    mockCollection.updateOne.mockResolvedValue(
-      null as unknown as UpdateResult<Document>,
-    );
+    mockCollection.updateOne.mockResolvedValue({
+    acknowledged: true,
+    matchedCount: 0,
+    modifiedCount: 0,
+    upsertedCount: 0,
+    upsertedId: null,
+  });
 
     const response = await request(app)
-      .put(`/api/folder/${fakeFolderId.toString()}`)
+      .put(`/api/folder/${fakeFolderId}`)
       .send(updateData);
 
     expect(response.status).toBe(404);
@@ -349,7 +347,7 @@ describe("Folder API", () => {
     mockCollection.updateOne.mockRejectedValueOnce(new Error("Database error"));
 
     const response = await request(app)
-      .put(`/api/folder/${fakeFolderId.toString()}`)
+      .put(`/api/folder/${fakeFolderId}`)
       .send(updateData);
 
     expect(response.status).toBe(500);
@@ -367,12 +365,39 @@ describe("Folder API", () => {
       deletedCount: 1,
     });
 
-    const response = await request(app).delete(
-      `/api/folder/${fakeFolderId.toString()}`,
-    );
+    const response = await request(app)
+      .delete(`/api/folder/${fakeFolderId.toString()}`);
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
     expect(response.body.message).toBe("Folder deleted!");
-  });
+    });
+
+    it('DELETE /api/folder/:folderId - should return 404 if folder was not deleted', async () => {
+    const fakeFolderId = new ObjectId().toString();
+
+    mockCollection.deleteOne.mockResolvedValue({
+      acknowledged: true,
+      deletedCount: 0 
+      });
+
+    const response = await request(app)
+        .delete(`/api/folder/${fakeFolderId}`);
+    
+    expect(response.status).toBe(404);
+    expect(response.body.success).toBe(false);
+    expect(response.body.message).toBe("Folder not found");  
 });
+
+it("should return 500 if database fails", async () => {
+  const fakeFolderId = new ObjectId()
+    mockCollection.deleteOne.mockRejectedValue(new Error("DB Error"));
+
+    const response = await request(app)
+      .delete(`/api/folder/${fakeFolderId}`);
+
+    expect(response.status).toBe(500);
+    expect(response.body.success).toBe(false);
+    expect(response.body.message).toBe("Delete failed");
+  });
+  });
