@@ -1,18 +1,17 @@
 # Dependencies
 node_modules/
 
-# Environment variables
-.env
-.env.*
-!.env.example
-!.env.development
-
 # Build output
 dist/
 build/
 
 # Coverage
 coverage/
+
+# Environment variables
+.env
+.env.*
+!.env.example
 
 # Logs
 logs/
@@ -35,12 +34,9 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
-
-# Vite
-*.local
-
-# Playwright
-.playwright-mcp/
-
-# TypeScript
+.playwright-mcp
+# TypeScript cache
 *.tsbuildinfo
+
+# Misc
+*.local
