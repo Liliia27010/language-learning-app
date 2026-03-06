@@ -6,7 +6,8 @@ import folderRouter from "./lib/folder.js";
 import setcardsRouter from "./lib/setcards.js";
 import { toNodeHandler } from "better-auth/node";
 
-const app = express();
+const app: express.Express = express();
+
 console.log("FRONTEND : ", process.env.FRONTEND_URL);
 app.use(
   cors({

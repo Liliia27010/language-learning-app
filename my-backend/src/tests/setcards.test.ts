@@ -1,7 +1,7 @@
 import request from "supertest";
 import { jest, describe, it, expect } from "@jest/globals";
 import { ObjectId, type Collection } from "mongodb";
-import app from "../app.js";
+import app from "../index.js";
 import auth, { db } from "../lib/auth.js";
 
 const TEST_USER_ID = new ObjectId().toString(); // Replace with a valid user ID from your database
