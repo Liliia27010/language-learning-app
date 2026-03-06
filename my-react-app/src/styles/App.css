@@ -993,10 +993,10 @@ button {
   .folders-grid,
   .sets-grid {
     display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+    grid-template-columns: repeat(2, 1fr);
     gap: 35px;
-    width: 100%;
-    max-width: 1250px;
+    width: 1000px;
+    max-width: 3250px;
     justify-content: center;
     margin: 40px auto;
   }
@@ -1007,8 +1007,8 @@ button {
   }
 
   .flashcard-inner {
-    padding: 30px 400px;
-    max-width: 400px;
+    padding: 30px 200px;
+    max-width: 500px;
     height: 250px;
   }
 

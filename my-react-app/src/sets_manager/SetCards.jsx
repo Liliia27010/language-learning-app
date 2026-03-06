@@ -164,7 +164,7 @@ export default function SetCards() {
                       <input
                         type="color"
                         value={card.color}
-                        onChange={(e) => updateCard(card._id, "color", e.target.value)}
+                        onChange={(e) => updateCard(card.id, "color", e.target.value)}
                       />
                     </div>
 
