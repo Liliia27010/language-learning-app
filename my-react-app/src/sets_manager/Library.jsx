@@ -1,11 +1,45 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { Link, useNavigate } from "react-router";
 import "../styles/App.css";
 import { useLibrary } from "../context/LibraryContext";
+import {useAuth} from "../context/LoginContext";
 
 export default function Library() {
   const navigate = useNavigate();
+  const {user} = useAuth();
   const { savedSets, folders, deleteCardSet, setFolders } = useLibrary();
+  const [tests, setTests] = useState([]);
+
+  useEffect(() => {
+    const fetchTests = async () => {
+      try {
+        const response = await fetch("/api/tests");
+        const data = await response.json();
+        if (data.success) {
+          setTests(data.tests);
+        }
+      } catch (error) {
+        console.error("Failed to fetch tests", error);
+      }
+    };
+
+    if (user?.userType === "teacher") {
+      fetchTests();
+    }
+  }, [user]);
+
+  const deleteTest = async (testId) => {
+    if (!window.confirm("Are you sure you want to delete this test?")) return;
+    try {
+      const response = await fetch(`/api/tests/${testId}`, { method: "DELETE" });
+      if (response.ok) {
+        setTests((prev) => prev.filter((t) => t._id !== testId));
+      }
+    } catch (error) {
+      console.error("Delete test failed", error);
+    }
+  };
+
 
   const deleteFolder = async (folderId) => {
     try {
@@ -76,7 +110,7 @@ console.log('render library')
           onClick={() => navigate("/folder")}
           style={{ cursor: "pointer" }}
         >
-          + New Folder
+          +  Create New Folder
         </div>
 
         <div className="folders-grid">
@@ -165,6 +199,29 @@ console.log('render library')
           ) : null}
         </div>
       </div>
+      {user?.userType === "teacher" && (
+        <div className="section">
+          <h2>Your Tests</h2>
+          <Link to="/createtest" className="create-btn">+ Create New Test</Link>
+          <div className="folders-grid">
+            {tests.length > 0 ? (
+              tests.map((test) => (
+                <div key={test._id} className="folder-card">
+                  <h3>{test.title}</h3>
+                  <p className="folder-count">Time limit: {test.timeLimit} min</p>
+                  <div className="button-group">
+                    <button className="create-btn" onClick={() => navigate(`/setcards/${test.setId}`)}>Edit</button>
+                    <button className="create-btn" onClick={() => navigate(`/take-test/${test._id}`)}>Start Test</button>
+                    <button className="create-btn delete-btn" onClick={() => deleteTest(test._id)}>Delete</button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p>No tests created yet.</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

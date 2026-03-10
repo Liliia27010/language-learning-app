@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Link } from "react-router";
+import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router";
 import { Menu as MenuIcon } from "lucide-react";
 import { useAuth } from "./context/LoginContext";
 
@@ -14,6 +14,8 @@ import SetCards from "./sets_manager/SetCards";
 import Library from "./sets_manager/Library";
 import Folder from "./sets_manager/Folder";
 import FolderDetail from "./sets_manager/FolderDetail";
+import CreateTest from "./sets_manager/CreateTest";
+import TakeTest from "./sets_manager/TakeTest";
 import "./styles/App.css";
 import LearnCard from "./sets_manager/LearnCard";
 
@@ -98,6 +100,8 @@ export default function App() {
                   <Route path="/folder" element={<Folder />} />
                   <Route path="/cards/:setId" element={<LearnCard />} />
                   <Route path="/library" element={<Library />} />
+                  <Route path="/createtest" element={<CreateTest/>} />
+                  <Route path="/take-test/:testId" element={<TakeTest/>} />
                 </Routes>
               </main>
             </div>

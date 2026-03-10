@@ -15,6 +15,8 @@ export default function Test() {
         subtitle="Get graded on practice test to check how much you know and prepare for your next big exam."
       />
 
+      <Button label="+ Create a Test" />
+
       <FeatureItem
         image={questionsGif}
         title="Questions formatted your way"
@@ -32,7 +34,7 @@ export default function Test() {
         title="Take a test, anywhere"
         description="With Test Mode available on both iOS and Android, you can get practice in wherever you go."
       />
-      <Button label="+ Create a Test" />
+
     </div>
   );
 }

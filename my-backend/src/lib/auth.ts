@@ -9,6 +9,7 @@ declare global {
     interface Request {
       user: {
         id: string;
+        userType: "teacher" | "student";
         email: string;
         emailVerified: boolean;
         name: string;
@@ -36,7 +37,7 @@ export const userAuth = async (
         .json({ success: false, message: "You must be logged in!" });
     }
 
-    req.user = session.user;
+    req.user = session.user as any;
     next();
   } catch (error) {
     console.error("Auth Middleware Error:", error);
@@ -69,7 +70,8 @@ const auth = betterAuth({
     additionalFields: {
       userType: {
         type: "string",
-        required: false,
+        required: true,
+        defaultValue: "teacher",
       },
     },
   },

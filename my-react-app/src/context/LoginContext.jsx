@@ -48,6 +48,7 @@ export function AuthProvider({ children }) {
         handleLogin,
         handleLogout,
         isLoggedIn,
+        user,
         isLoginOpen,
         setIsLoggedIn,
         isSignupOpen,

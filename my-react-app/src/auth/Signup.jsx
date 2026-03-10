@@ -14,6 +14,29 @@ export default function Signup({ isOpen, onClose, onSwitchToLogin }) {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    let finalUserType = "student";
+
+  if (userType === "teacher") {
+
+    if (teacherCode === "FINLEARN") {
+      finalUserType = "teacher";
+    } else {
+      alert("Invalid Teacher Code! You will be registered as a student.");
+      return; 
+    }
+  }
+
+  const { data, error } = await authClient.signUp.email({
+    email,
+    password,
+    name,
+    userType: finalUserType, 
+  });
+
+  if (error) {
+    console.error(error);
+  }
+
 
     let digits = 0;
     let letters = 0;
