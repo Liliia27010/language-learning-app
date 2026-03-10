@@ -22,10 +22,13 @@ export default function Flashcards({ isLoggedIn, onOpenLogin }) {
 
   return (
     <div className="flashcards-container">
+      
       <FeatureContainer
         title="The easiest way to make and study flashcards"
         subtitle="Creating your own set of flashcards is simple with our free flashcard maker — just add a term and definition. Once your flashcard set is complete, you can study and share it with friends."
       />
+
+      <Button label="+ Create a flashcard set" onClick={handleCreateClick} />
 
       <FeatureItem
         image={importGif}
@@ -45,7 +48,7 @@ export default function Flashcards({ isLoggedIn, onOpenLogin }) {
         description="Only study the flashcards you want to focus on."
       />
 
-      <Button label="+ Create a flashcard set" onClick={handleCreateClick} />
+
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { useAuth } from "../context/LoginContext";
 
 export default function Menu({ isOpen, onClose }) {
-  const { isLoggedIn, handleLogout } = useAuth();
+  const { isLoggedIn,user, handleLogout } = useAuth();
   const menuRef = useRef();
 
   useEffect(() => {
@@ -60,6 +60,15 @@ export default function Menu({ isOpen, onClose }) {
           <Link to="/folder" className="nav-link" onClick={onClose}>
             Add Folder
           </Link>
+
+          {user?.userType === "teacher" && (
+            <>
+             <h2 className="sidebar-title">For teacher</h2>
+            <Link to="/createtest" className="nav-link" onClick={onClose}>
+              Create Test 
+            </Link>
+            </>
+          )}
 
           <div
             className="logout-button"

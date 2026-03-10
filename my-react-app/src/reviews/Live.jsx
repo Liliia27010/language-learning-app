@@ -14,6 +14,8 @@ export default function Live() {
         subtitle="Turn lesson reviews into an epic classroom challenge! Ignite student participation with a fast-paced, collaborative game that brings your specific lesson content to life through friendly competition."
       />
 
+      <Button label="+ Create a Live game" />
+
       <FeatureItem
         image={Integration}
         title="Seamless Integration"
@@ -31,8 +33,7 @@ export default function Live() {
         title="Master the Material"
         description="Boost long-term retention through fast-paced active recall that makes vocabulary and concepts stick."
       />
-
-      <Button label="+ Create a Live game" />
+        
     </div>
   );
 }
