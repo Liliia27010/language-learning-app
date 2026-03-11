@@ -32,6 +32,7 @@ describe("SetCards API", () => {
         email: "test@example.com",
         name: "Test User",
         emailVerified: true,
+        userType: "student",
         createdAt: new Date(),
         updatedAt: new Date(),
       },

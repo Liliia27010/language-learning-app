@@ -23,10 +23,33 @@ export default function Library() {
       }
     };
 
-    if (user?.userType === "teacher") {
+    if (user) {
       fetchTests();
     }
-  }, [user]);
+  }, [user, user?.userType]);
+  
+const assignStudent = async (testId) => {
+  const email = prompt("Enter student's email to share this test:");
+  if (!email) return;
+
+  try {
+    const response = await fetch(`/api/tests/${testId}/assign`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert("Success: " + data.message);
+    } else {
+      alert("Error: " + data.message);
+    }
+  } catch (err) {
+    alert("Failed to assign student. Check console.");
+  }
+};
 
   const deleteTest = async (testId) => {
     if (!window.confirm("Are you sure you want to delete this test?")) return;
@@ -199,29 +222,48 @@ console.log('render library')
           ) : null}
         </div>
       </div>
-      {user?.userType === "teacher" && (
-        <div className="section">
-          <h2>Your Tests</h2>
+      <div className="section">
+        <h2>{user?.userType === "teacher" ? "Your Tests" : "Assigned Tests"}</h2>
+        
+        {user?.userType === "teacher" && (
           <Link to="/createtest" className="create-btn">+ Create New Test</Link>
-          <div className="folders-grid">
-            {tests.length > 0 ? (
-              tests.map((test) => (
-                <div key={test._id} className="folder-card">
-                  <h3>{test.title}</h3>
-                  <p className="folder-count">Time limit: {test.timeLimit} min</p>
-                  <div className="button-group">
-                    <button className="create-btn" onClick={() => navigate(`/setcards/${test.setId}`)}>Edit</button>
-                    <button className="create-btn" onClick={() => navigate(`/take-test/${test._id}`)}>Start Test</button>
-                    <button className="create-btn delete-btn" onClick={() => deleteTest(test._id)}>Delete</button>
-                  </div>
+        )}
+        
+        <div className="folders-grid">
+          {tests.length > 0 ? (
+            tests.map((test) => (
+              <div key={test._id} className="folder-card">
+                <h3>{test.title}</h3>
+                <p className="folder-count">Time limit: {test.timeLimit} min</p>
+                <div className="button-group">
+                  <button className="create-btn" onClick={() => navigate(`/take-test/${test._id}`)}>
+                    Start Test
+                  </button>
+                  
+                  {user?.userType === "teacher" && (
+                    <>
+                      <button className="create-btn" onClick={() => navigate(`/setcards/${test.setId}`)}>Edit</button>
+                      <button className="create-btn" onClick={() => assignStudent(test._id)}>Add Student</button>
+                      <button className="create-btn delete-btn" onClick={() => deleteTest(test._id)}>Delete</button>
+                    </>
+                  )}
                 </div>
-              ))
-            ) : (
-              <p>No tests created yet.</p>
-            )}
-          </div>
+              </div>
+            ))
+          ) : (
+            <div className="empty-state">
+              {user?.userType === "student" ? (
+                <div className="no-tests-message">
+                  <p>No tests have been shared with you yet.</p>
+                  <small>Once your teacher assigns a test, it will appear here.</small>
+                </div>
+              ) : (
+                <p>You haven't created any tests yet.</p>
+              )}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

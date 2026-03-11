@@ -6,6 +6,7 @@ import auth from "./lib/auth.js";
 import folderRouter from "./lib/folder.js";
 import setcardsRouter from "./lib/setcards.js";
 import testRouter from "./lib/tests.js";
+import userRouter from "./lib/users.js";
 import { toNodeHandler } from "better-auth/node";
 
 const app: express.Express = express();
@@ -26,6 +27,7 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use("/api/folder", folderRouter);
 app.use("/api/setcards", setcardsRouter);
 app.use("/api/tests", testRouter);
+app.use("/api/users", userRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "Hello from the backend hello!" });

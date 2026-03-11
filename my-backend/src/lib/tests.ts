@@ -3,7 +3,6 @@ import { db, userAuth } from "./auth.js";
 import { ObjectId } from "mongodb";
 
 const router = Router();
-
 router.use(userAuth);
 
 /**
@@ -12,12 +11,17 @@ router.use(userAuth);
 router.get("/", async (req, res) => {
   try {
     const userId = req.user.id;
-
+    const userType = req.user.userType;
+    let query;
+    if (userType === "teacher") {
+      query = { teacherIds: { $in: [userId] } };
+    } else {
+      query = { studentIds: { $in: [userId] } };
+    }
+    console.log('query : ', query)
     const allTests = await db
       .collection("tests")
-      .find({ 
-        teacherId: userId 
-      })
+      .find(query)
       .sort({ createdAt: -1 })
       .toArray();
 
@@ -28,32 +32,21 @@ router.get("/", async (req, res) => {
 });
 
 /**
- * Create a test
+ * Create test
  */
 router.post("/", async (req, res) => {
   try {
     const { title, setId, timeLimit } = req.body;
     const userId = req.user.id;
-    const userType = req.user.userType;
 
-    if (userType !== "teacher") {
-      return res.status(403).json({ 
-        success: false, 
-        message: "Access denied. Only teachers can create tests." 
-      });
-    }
-
-    if (!title || !setId) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Title and Set ID are required" 
-      });
+    if (req.user.userType !== "teacher") {
+      return res.status(403).json({ success: false, message: "Only teachers can create tests." });
     }
 
     const result = await db.collection("tests").insertOne({
       title,
       setId: new ObjectId(setId),
-      teacherId: userId,
+      teacherIds: [userId], 
       timeLimit: parseInt(timeLimit) || 10,
       createdAt: new Date(),
     });
@@ -65,24 +58,58 @@ router.post("/", async (req, res) => {
 });
 
 /**
- * Get a test with ID
+ * Get students
  */
-
-router.get("/:testId", async (req, res) => {
+router.post("/:testId/assign", async (req, res) => {
   try {
     const { testId } = req.params;
+    const { email } = req.body;
 
-    const test = await db.collection("tests").findOne({ 
-      _id: new ObjectId(testId) 
+    const searchEmail = email.trim().toLowerCase();
+
+    const student = await db.collection("user").findOne({ 
+      email: searchEmail 
     });
 
-    if (!test) {
+    if (!student) {
+      console.log("No student found in 'user' collection");
+      return res.status(404).json({ success: false, message: "Student not found in database" });
+    }
+
+    const studentIdStr = student.id || student._id.toString();
+
+    const result = await db.collection("tests").updateOne(
+      { _id: new ObjectId(testId) },
+      { $addToSet: { studentIds: studentIdStr } } 
+    );
+
+    if (result.matchedCount === 0) {
       return res.status(404).json({ success: false, message: "Test not found" });
     }
 
+    res.status(200).json({ 
+      success: true, 
+      message: `Test shared with ${student.name || email}` 
+    });
+
+  } catch (error) {
+    console.error("Assign Error:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+/**
+ * GEt test with ID
+ */
+router.get("/:testId", async (req, res) => {
+  try {
+    const { testId } = req.params;
+    const test = await db.collection("tests").findOne({ _id: new ObjectId(testId) });
+
+    if (!test) return res.status(404).json({ success: false, message: "Test not found" });
     res.status(200).json({ success: true, test });
   } catch (error) {
-    res.status(400).json({ success: false, message: "Invalid ID format" });
+    res.status(400).json({ success: false, message: "Invalid ID" });
   }
 });
 
@@ -92,18 +119,16 @@ router.get("/:testId", async (req, res) => {
 router.delete("/:testId", async (req, res) => {
   try {
     const { testId } = req.params;
-    const userId = req.user.id;
 
     const result = await db.collection("tests").deleteOne({
       _id: new ObjectId(testId),
-      teacherId: userId 
+      teacherIds: { $in: [req.user.id] }
     });
 
     if (result.deletedCount === 0) {
-      return res.status(404).json({ success: false, message: "Test not found or unauthorized" });
+      return res.status(404).json({ success: false, message: "Unauthorized or not found" });
     }
-
-    res.status(200).json({ success: true, message: "Test deleted!" });
+    res.status(200).json({ success: true, message: "Deleted" });
   } catch (error) {
     res.status(500).json({ success: false, message: "Delete failed" });
   }

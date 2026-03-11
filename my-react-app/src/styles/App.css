@@ -789,7 +789,7 @@ button {
 }
 
 .test-timer {
-  color: orange;
+  color: black;
 }
 
 
@@ -797,6 +797,7 @@ button {
   background: #ffffff;
   padding: 40px;
   border-radius: 15px;
+  width: 500px;
   text-align: center;
   margin-bottom: 30px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -811,7 +812,9 @@ button {
 
 
 .options-list {
-  display: flex;
+  grid-template-columns: repeat(2, 1fr);
+  width: 100%;
+  display: grid;
   flex-direction: column;
   gap: 12px;
 }
