@@ -75,6 +75,24 @@ export default function Library() {
     }
   };
 
+  const shareFolder = async (folderId) => {
+    const email = prompt("Enter email to share this folder:");
+    if (!email) return;
+
+    try {
+      const response = await fetch(`/api/folder/${folderId}/share`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      if (data.success) alert("Folder shared successfully!");
+      else alert("Error: " + data.message);
+    } catch (err) {
+      alert("Failed to share folder");
+    }
+  };
+
   const deleteTest = async (testId) => {
     if (!window.confirm("Are you sure you want to delete this test?")) return;
     try {
@@ -161,13 +179,17 @@ console.log('render library')
         </div>
 
         <div className="folders-grid">
-          {folders.map((folder) => (
+          {folders.map((folder) => {
+            const isOwner = Array.isArray(folder.userId) && folder.userId[0] === user?.id;
+            
+            return (
             <div
               key={folder._id}
               className="folder-card clickable"
               onClick={() => navigate(`/folder/${folder._id}`)}
             >
               <div className="folder-header">
+                {!isOwner && <p>Shared with you</p>}
                 <h3>{folder.name}</h3>
               </div>
 
@@ -176,6 +198,7 @@ console.log('render library')
               </p>
 
               <div className="button-group">
+                {isOwner && (
                 <button
                   className="create-btn"
                   onClick={(e) => {
@@ -185,9 +208,13 @@ console.log('render library')
                 >
                   Edit
                 </button>
-              </div>
-
-              <div className="button-group">
+                )}
+                 {isOwner && (
+                <button className="create-btn" onClick={(e) => { e.stopPropagation(); shareFolder(folder._id); }}>
+                        Share
+                      </button>
+                 )}
+                  {isOwner && (
                 <button
                   className="create-btn"
                   onClick={(e) => {
@@ -197,9 +224,11 @@ console.log('render library')
                 >
                   Delete
                 </button>
+                )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
         <div className="section">
@@ -218,7 +247,7 @@ console.log('render library')
                   <div className="folder-header">
                     {!isOwner && (
                       <p>
-                        Shared by Teacher
+                        Shared with you
                       </p>
                     )}
                      <h3>{set.name}</h3>

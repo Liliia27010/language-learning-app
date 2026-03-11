@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { X } from "lucide-react";
 import { useLibrary } from "../context/LibraryContext";
+import {useAuth} from "../context/LoginContext";
 import "../styles/App.css";
 
 export default function FolderDetail() {
   const { folderId } = useParams();
   const navigate = useNavigate();
+  const {user} = useAuth();
 
   const { folders, savedSets, handleAddSetToFolder} =
     useLibrary();
@@ -16,6 +18,7 @@ export default function FolderDetail() {
   const folder = folders.find((f) => String(f._id) === String(folderId));
 
   if (!folder) return <div className="library-container">Folder not found</div>;
+  const isOwner = Array.isArray(folder.userId) && folder.userId[0] === user?.id;
 
   const currentFolderSets = Array.isArray(folder.sets) ? folder.sets : [];
 
@@ -27,9 +30,11 @@ return (
       </div>
 
       <div className="section">
+        {isOwner && (
         <button className="create-btn" onClick={() => setIsModalOpen(true)}>
           + Add Set to Folder
         </button>
+        )}
 
         <div className="sets-grid">
           {currentFolderSets.map((set) => (
@@ -37,25 +42,29 @@ return (
               <h3>{set.name}</h3>
               <p>{set.cards?.length || 0} cards</p>
               <div className="card-actions">
+
                 <button
                     className="create-btn"
                     onClick={() => navigate(`/cards/${set._id}`)}
                   >
                     Learn
                   </button>
+
+                  {isOwner && (
                 <button
                   className="create-btn"
                   onClick={() => navigate(`/setcards/${set._id || set.id}`)}
                 >
                   Edit
                 </button>
+                  )}
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {isModalOpen && (
+      {isModalOpen && isOwner && (
         <div className="overlay">
           <div className="modal">
             <div className="modal-header">
