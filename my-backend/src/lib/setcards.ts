@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
     const allSets = await db
       .collection("setcards")
       .find({ 
-        userId: new ObjectId(userId) 
+        userId: { $in: [userId] }
       })
       .toArray();
 
@@ -46,7 +46,8 @@ router.post("/", async (req, res) => {
     const result = await db.collection("setcards").insertOne({
       name,
       description,
-      userId: new ObjectId(userId),
+      userId: [userId],
+      ownerId: [userId],
       cards: cards.map((card: any) => ({
         term: card.term,
         definition: card.definition,
@@ -63,6 +64,35 @@ router.post("/", async (req, res) => {
 });
 
 /**
+ * Share with you friends
+ */
+
+router.post("/:setId/share", async (req, res) => {
+  try {
+    const { setId } = req.params;
+    const { email } = req.body;
+
+    const userToShare = await db.collection("user").findOne({ 
+      email: email.trim().toLowerCase() 
+    });
+
+    if (!userToShare) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const shareUserId = userToShare.id || userToShare._id.toString();
+    const result = await db.collection("setcards").updateOne(
+      { _id: new ObjectId(setId) },
+      { $addToSet: { userId: shareUserId } }
+    );
+
+    res.status(200).json({ success: true, message: `Shared with ${userToShare.name}` });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Sharing failed" });
+  }
+});
+
+/**
  * 1. Get a specific set by ID
  */
 router.get("/:setId", async (req, res) => {
@@ -72,7 +102,7 @@ router.get("/:setId", async (req, res) => {
 
     const set = await db.collection("setcards").findOne({ 
       _id: new ObjectId(setId),
-      userId: new ObjectId(userId) 
+      userId: { $in: [userId] }
     });
 
     if (!set) {
@@ -98,7 +128,7 @@ router.put("/:setId", async (req, res) => {
     const result = await db.collection("setcards").updateOne(
       {
         _id: new ObjectId(setId),
-        userId: new ObjectId(userId),
+        userId: { $in: [userId] },
       },
       {
         $set: {
@@ -136,7 +166,7 @@ router.delete("/:setId", async (req, res) => {
 
     const result = await db.collection("setcards").deleteOne({
       _id: new ObjectId(setId),
-      userId: new ObjectId(userId),
+      userId: { $in: [userId] },
     });
 
     if (result.deletedCount === 0) {

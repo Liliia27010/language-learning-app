@@ -28,28 +28,52 @@ export default function Library() {
     }
   }, [user, user?.userType]);
   
-const assignStudent = async (testId) => {
-  const email = prompt("Enter student's email to share this test:");
-  if (!email) return;
+  const assignStudent = async (testId) => {
+    const email = prompt("Enter student's email to share this test:");
+    if (!email) return;
 
-  try {
-    const response = await fetch(`/api/tests/${testId}/assign`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email }),
-    });
+    try {
+      const response = await fetch(`/api/tests/${testId}/assign`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (data.success) {
-      alert("Success: " + data.message);
-    } else {
-      alert("Error: " + data.message);
+      if (data.success) {
+        alert("Success: " + data.message);
+      } else {
+        alert("Error: " + data.message);
+      }
+    } catch (err) {
+      alert("Failed to assign student. Check console.");
     }
-  } catch (err) {
-    alert("Failed to assign student. Check console.");
-  }
-};
+  };
+
+  const shareSet = async (setId) => {
+    const email = prompt("Enter email to sahre this set:");
+    if (!email) return;
+
+    try {
+      const response = await fetch(`/api/setcards/${setId}/share`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify({ email: email }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert("Shared successfully!");
+      } else {
+        alert("Error: " + data.message);
+      }
+    } catch (err) {
+      alert("Request failed");
+    }
+  };
 
   const deleteTest = async (testId) => {
     if (!window.confirm("Are you sure you want to delete this test?")) return;
@@ -178,8 +202,7 @@ console.log('render library')
           ))}
         </div>
       </div>
-
-      <div className="section">
+        <div className="section">
         <h2>Your Cards Set</h2>
         <Link to="/setcards" className="create-btn">
           + Create New Set
@@ -187,39 +210,65 @@ console.log('render library')
 
         <div className="sets-grid">
           {filteredSets.length > 0 ? (
-            filteredSets.map((set) => (
-              <div key={set._id} className="folder-card">
-                <div className="folder-header">
-                  <h3>{set.name}</h3>
+            filteredSets.map((set) => {
+              const isOwner = set.userId && set.userId[0] === user?.id;
+
+              return (
+                <div key={set._id} className="folder-card">
+                  <div className="folder-header">
+                    {!isOwner && (
+                      <p>
+                        Shared by Teacher
+                      </p>
+                    )}
+                     <h3>{set.name}</h3>
+                  </div>
+
+                  <p className="folder-count"> {set.cards?.length || 0} cards</p>
+                  <p className="set-description">{set.description}</p>
+
+                  <div className="button-group">
+                    {isOwner && (
+                      <button
+                        className="create-btn"
+                        onClick={() => navigate(`/setcards/${set._id}`)}
+                      >
+                        Update
+                      </button>
+                    )}
+                    
+                    {isOwner && (
+                      <button
+                        className="create-btn"
+                        onClick={() => shareSet(set._id)}
+                      >
+                        Share
+                      </button>
+                      
+                    )}
+                    {isOwner && (
+                      <button
+                      className="create-btn delete-btn"
+                      onClick={() => deleteCardSet(set._id)}
+                    >
+                      Delete
+                    </button>
+                    )}
+                    
+                     <button
+                      className="create-btn"
+                      onClick={() => navigate(`/cards/${set._id}`)}
+                    >
+                      Learn
+                    </button>
+
+                  </div>
                 </div>
-
-                <p className="folder-count"> {set.cards?.length || 0} cards</p>
-
-                <p className="set-description">{set.description}</p>
-
-                <div className="button-group">
-                  <button
-                    className="create-btn"
-                    onClick={() => navigate(`/setcards/${set._id}`)}
-                  >
-                    Update
-                  </button>
-                  <button
-                    className="create-btn"
-                    onClick={() => navigate(`/cards/${set._id}`)}
-                  >
-                    Learn
-                  </button>
-                  <button
-                    className="create-btn delete-btn"
-                    onClick={() => deleteCardSet(set._id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))
-          ) : null}
+              );
+            })
+          ) : (
+            <p>No card sets found.</p>
+          )}
         </div>
       </div>
       <div className="section">
