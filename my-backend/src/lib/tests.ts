@@ -18,12 +18,24 @@ router.get("/", async (req, res) => {
     } else {
       query = { studentIds: { $in: [userId] } };
     }
-    console.log('query : ', query)
-    const allTests = await db
-      .collection("tests")
-      .find(query)
-      .sort({ createdAt: -1 })
-      .toArray();
+    const allTests = await db.collection("tests").aggregate([
+      { $match: { userId: { $in: [userId] } } },
+      { $addFields: { firstId: { $toObjectId: { $arrayElemAt: ["$userId", 0] } } } },
+          {
+            $lookup: {
+              from: "user",
+              localField: "firstId",
+              foreignField: "_id",
+              as: "creator"
+            }
+          },
+          {
+            $addFields: { sharedBy: { $arrayElemAt: ["$creator.name", 0] } }
+          },
+          { $sort: { createdAt: -1 } },
+          { $project: { creator: 0, firstId: 0 } }
+    ]).toArray();
+
 
     res.status(200).json({ success: true, tests: allTests });
   } catch (error) {

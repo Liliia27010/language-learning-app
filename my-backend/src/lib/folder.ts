@@ -22,7 +22,20 @@ router.get("/", async (req, res) => {
           foreignField: "_id",   
           as: "sets"            
         }
-      }
+      },
+     { $addFields: { firstId: { $toObjectId: { $arrayElemAt: ["$userId", 0] } } } },
+      {
+        $lookup: {
+          from: "user",
+          localField: "firstId",
+          foreignField: "_id",
+          as: "creator"
+        }
+      },
+      {
+        $addFields: { sharedBy: { $arrayElemAt: ["$creator.name", 0] } }
+      },
+      { $project: { creator: 0, firstId: 0 } }
     ]).toArray();
 
     res.status(200).json(myFolders);

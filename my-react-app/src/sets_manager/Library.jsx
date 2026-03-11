@@ -189,7 +189,9 @@ console.log('render library')
               onClick={() => navigate(`/folder/${folder._id}`)}
             >
               <div className="folder-header">
-                {!isOwner && <p>Shared with you</p>}
+                {!isOwner && folder.sharedBy &&  (
+            <p className="shared-badge">Shared by {folder.sharedBy}</p>
+          )}
                 <h3>{folder.name}</h3>
               </div>
 
@@ -245,11 +247,9 @@ console.log('render library')
               return (
                 <div key={set._id} className="folder-card">
                   <div className="folder-header">
-                    {!isOwner && (
-                      <p>
-                        Shared with you
-                      </p>
-                    )}
+                    {!isOwner && set.sharedBy && (
+                        <p className="shared-badge">Shared by {set.sharedBy}</p>
+                      )}
                      <h3>{set.name}</h3>
                   </div>
 
@@ -311,6 +311,9 @@ console.log('render library')
           {tests.length > 0 ? (
             tests.map((test) => (
               <div key={test._id} className="folder-card">
+                {user?.userType === "student" && test.sharedBy && (
+                  <small>Teacher: {test.sharedBy}</small>
+                )}
                 <h3>{test.title}</h3>
                 <p className="folder-count">Time limit: {test.timeLimit} min</p>
                 <div className="button-group">

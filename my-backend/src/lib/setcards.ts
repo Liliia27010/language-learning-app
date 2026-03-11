@@ -14,12 +14,22 @@ router.get("/", async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const allSets = await db
-      .collection("setcards")
-      .find({ 
-        userId: { $in: [userId] }
-      })
-      .toArray();
+    const allSets = await db.collection("setcards").aggregate([
+      { $match: { userId: { $in: [userId] } } },
+      { $addFields: { firstId: { $toObjectId: { $arrayElemAt: ["$userId", 0] } } } },
+          {
+            $lookup: {
+              from: "user",
+              localField: "firstId",
+              foreignField: "_id",
+              as: "creator"
+            }
+          },
+          {
+            $addFields: { sharedBy: { $arrayElemAt: ["$creator.name", 0] } }
+          },
+          { $project: { creator: 0, firstId: 0 } }
+    ]).toArray();
 
     res.status(200).json(allSets);
   } catch (error) {
