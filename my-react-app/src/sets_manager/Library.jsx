@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import { Link, useNavigate } from "react-router";
 import "../styles/App.css";
 import { useLibrary } from "../context/LibraryContext";
+import ActionMenu from "../components/ActionMenu";
 import {useAuth} from "../context/LoginContext";
 
 export default function Library() {
@@ -180,58 +181,31 @@ console.log('render library')
 
         <div className="folders-grid">
           {folders.map((folder) => {
-            const isOwner = Array.isArray(folder.userId) && folder.userId[0] === user?.id;
-            
+            const isOwner = Array.isArray(folder.userId) && folder.userId[0] === user?.id;           
             return (
-            <div
-              key={folder._id}
-              className="folder-card clickable"
-              onClick={() => navigate(`/folder/${folder._id}`)}
-            >
-              <div className="folder-header">
-                {!isOwner && folder.sharedBy &&  (
-            <p className="shared-badge">Shared by {folder.sharedBy}</p>
-          )}
-                <h3>{folder.name}</h3>
-              </div>
-
-              <p className="folder-count">
-                {Array.isArray(folder.sets) ? folder.sets.length : 0} sets
-              </p>
-
-              <div className="button-group">
-                {isOwner && (
-                <button
-                  className="create-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    updateFolder(folder._id, folder.name, folder.description);
-                  }}
-                >
-                  Edit
-                </button>
-                )}
-                 {isOwner && (
-                <button className="create-btn" onClick={(e) => { e.stopPropagation(); shareFolder(folder._id); }}>
-                        Share
-                      </button>
-                 )}
+              <div key={folder._id} className="folder-card clickable" onClick={() => navigate(`/folder/${folder._id}`)}>
+                  {!isOwner && folder.sharedBy && <p className="shared-badge">Shared by {folder.sharedBy}</p>}
+                <div className="folder-header">
+                  
+                  <h3>{folder.name}</h3>
                   {isOwner && (
-                <button
-                  className="create-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deleteFolder(folder._id);
-                  }}
-                >
-                  Delete
-                </button>
-                )}
+                    <ActionMenu 
+                      actions={[
+                        { label: "Edit", onClick: () => updateFolder(folder._id, folder.name, folder.description) },
+                        { label: "Share", onClick: () => shareFolder(folder._id) },
+                        { label: "Delete", onClick: () => deleteFolder(folder._id), className: "delete-text" }
+                      ]} 
+                    />
+                  )}
+                </div>
+              
+                <p className="folder-count">{folder.sets?.length || 0} sets</p>
+                 <p style={{ fontSize: "11px", color: "#666", marginTop: "10px", fontWeight: "normal" }}>Click, to open folder</p>
               </div>
-            </div>
             );
           })}
-        </div>
+      </div>
+
       </div>
         <div className="section">
         <h2>Your Cards Set</h2>
@@ -243,63 +217,28 @@ console.log('render library')
           {filteredSets.length > 0 ? (
             filteredSets.map((set) => {
               const isOwner = set.userId && set.userId[0] === user?.id;
-
               return (
                 <div key={set._id} className="folder-card">
+                  {!isOwner && set.sharedBy && <p className="shared-badge">Shared by {set.sharedBy}</p>}
                   <div className="folder-header">
-                    {!isOwner && set.sharedBy && (
-                        <p className="shared-badge">Shared by {set.sharedBy}</p>
-                      )}
-                     <h3>{set.name}</h3>
+                    <h3>{set.name}</h3>
+                    <ActionMenu actions={[
+                      { label: "Learn", onClick: () => navigate(`/cards/${set._id}`) },
+                      ...(isOwner ? [
+                        { label: "Update", onClick: () => navigate(`/setcards/${set._id}`) },
+                        { label: "Share", onClick: () => shareSet(set._id) },
+                        { label: "Delete", onClick: () => deleteCardSet(set._id), isDelete: true }
+                      ] : [])
+                    ]} />
                   </div>
-
-                  <p className="folder-count"> {set.cards?.length || 0} cards</p>
-                  <p className="set-description">{set.description}</p>
-
-                  <div className="button-group">
-                    {isOwner && (
-                      <button
-                        className="create-btn"
-                        onClick={() => navigate(`/setcards/${set._id}`)}
-                      >
-                        Update
-                      </button>
-                    )}
-                    
-                    {isOwner && (
-                      <button
-                        className="create-btn"
-                        onClick={() => shareSet(set._id)}
-                      >
-                        Share
-                      </button>
-                      
-                    )}
-                    {isOwner && (
-                      <button
-                      className="create-btn delete-btn"
-                      onClick={() => deleteCardSet(set._id)}
-                    >
-                      Delete
-                    </button>
-                    )}
-                    
-                     <button
-                      className="create-btn"
-                      onClick={() => navigate(`/cards/${set._id}`)}
-                    >
-                      Learn
-                    </button>
-
-                  </div>
+                  <p className="folder-count">{set.cards?.length || 0} cards</p>
                 </div>
               );
             })
-          ) : (
-            <p>No card sets found.</p>
-          )}
+          ) : <p>No card sets found.</p>}
         </div>
       </div>
+      
       <div className="section">
         <h2>{user?.userType === "teacher" ? "Your Tests" : "Assigned Tests"}</h2>
         
@@ -322,11 +261,14 @@ console.log('render library')
                   </button>
                   
                   {user?.userType === "teacher" && (
-                    <>
-                      <button className="create-btn" onClick={() => navigate(`/setcards/${test.setId}`)}>Edit</button>
-                      <button className="create-btn" onClick={() => assignStudent(test._id)}>Add Student</button>
-                      <button className="create-btn delete-btn" onClick={() => deleteTest(test._id)}>Delete</button>
-                    </>
+                   <ActionMenu actions={[
+                    { label: "Start Test", onClick: () => navigate(`/take-test/${test._id}`) },
+                    ...(user?.userType === "teacher" ? [
+                      { label: "Edit", onClick: () => navigate(`/setcards/${test.setId}`) },
+                      { label: "Add Student", onClick: () => assignStudent(test._id) },
+                      { label: "Delete", onClick: () => deleteTest(test._id), isDelete: true }
+                    ] : [])
+                  ]} />
                   )}
                 </div>
               </div>
