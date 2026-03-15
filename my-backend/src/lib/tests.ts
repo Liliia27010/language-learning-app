@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
       query = { studentIds: { $in: [userId] } };
     }
     const allTests = await db.collection("tests").aggregate([
-      { $match: { userId: { $in: [userId] } } },
+      { $match: query },
       { $addFields: { firstId: { $toObjectId: { $arrayElemAt: ["$userId", 0] } } } },
           {
             $lookup: {
@@ -126,6 +126,70 @@ router.get("/:testId", async (req, res) => {
 });
 
 /**
+ * Get results for test
+ */
+router.post("/results", async (req, res) => {
+  try {
+    const { testId, score, timeTaken } = req.body;
+    const studentId = req.user.id; 
+
+    const result = await db.collection("results").insertOne({
+      testId: new ObjectId(testId),
+      studentId: studentId, 
+      score: parseInt(score),
+      timeTaken: parseInt(timeTaken),
+      completedAt: new Date(),
+    });
+
+    res.status(201).json({ success: true, id: result.insertedId });
+  } catch (error) {
+    console.error("Save Result Error:", error);
+    res.status(500).json({ success: false, message: "Failed to save results" });
+  }
+});
+
+/**
+ * GET All results from tests for teacher
+ */
+router.get("/:testId/results", async (req, res) => {
+  try {
+    const { testId } = req.params;
+
+    const results = await db.collection("results").aggregate([
+      { $match: { testId: new ObjectId(testId) } },
+
+      {
+        $addFields: {
+          studentObjId: { $toObjectId: "$studentId" }
+        }
+      },
+      {
+        $lookup: {
+          from: "user",
+          localField: "studentObjId",
+          foreignField: "_id",
+          as: "studentInfo"
+        }
+      },
+      { $unwind: "$studentInfo" },
+
+      {
+        $project: {
+          studentName: "$studentInfo.name",
+          score: 1,
+          timeTaken: 1,
+          completedAt: 1
+        }
+      }
+    ]).toArray();
+
+    res.status(200).json({ success: true, results });
+  } catch (error) {
+    console.error("Aggregation Error:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+});
+/**
  * Delete test
  */
 router.delete("/:testId", async (req, res) => {
@@ -134,7 +198,7 @@ router.delete("/:testId", async (req, res) => {
 
     const result = await db.collection("tests").deleteOne({
       _id: new ObjectId(testId),
-      teacherIds: { $in: [req.user.id] }
+      teacherIds: req.user.id
     });
 
     if (result.deletedCount === 0) {

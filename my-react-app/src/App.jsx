@@ -16,6 +16,7 @@ import Folder from "./sets_manager/Folder";
 import FolderDetail from "./sets_manager/FolderDetail";
 import CreateTest from "./sets_manager/CreateTest";
 import TakeTest from "./sets_manager/TakeTest";
+import TestResults from "./sets_manager/TestResults";
 import "./styles/App.css";
 import LearnCard from "./sets_manager/LearnCard";
 
@@ -102,6 +103,7 @@ export default function App() {
                   <Route path="/library" element={<Library />} />
                   <Route path="/createtest" element={<CreateTest/>} />
                   <Route path="/take-test/:testId" element={<TakeTest/>} />
+                  <Route path="/test-results/:testId" element={<TestResults />} />
                 </Routes>
               </main>
             </div>

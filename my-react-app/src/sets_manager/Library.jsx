@@ -24,10 +24,10 @@ export default function Library() {
       }
     };
 
-    if (user) {
+    if (user && user.id) {
       fetchTests();
     }
-  }, [user, user?.userType]);
+  }, [user]);
   
   const assignStudent = async (testId) => {
     const email = prompt("Enter student's email to share this test:");
@@ -247,33 +247,32 @@ console.log('render library')
         )}
         
         <div className="folders-grid">
-          {tests.length > 0 ? (
-            tests.map((test) => (
-              <div key={test._id} className="folder-card">
-                {user?.userType === "student" && test.sharedBy && (
-                  <small>Teacher: {test.sharedBy}</small>
-                )}
-                <h3>{test.title}</h3>
-                <p className="folder-count">Time limit: {test.timeLimit} min</p>
-                <div className="button-group">
-                  <button className="create-btn" onClick={() => navigate(`/take-test/${test._id}`)}>
-                    Start Test
-                  </button>
+            {tests.length > 0 ? (
+              tests.map((test) => (
+                <div key={test._id} className="folder-card">
+                  <div className="folder-header">
+                    <h3>{test.title || test.name}</h3>
+                    <ActionMenu actions={[
+                      { label: "Start Test", onClick: () => navigate(`/take-test/${test._id}`) },
+                      ...(user?.userType === "teacher" ? [
+                        { 
+      label: "View Results", 
+      onClick: () => navigate(`/test-results/${test._id}`) 
+    },
+                        { label: "Edit Set", onClick: () => navigate(`/setcards/${test.setId}`) },
+                        { label: "Add Student", onClick: () => assignStudent(test._id) },
+                        { label: "Delete", onClick: () => deleteTest(test._id), isDelete: true }
+                      ] : [])
+                    ]} />
+                  </div>
                   
-                  {user?.userType === "teacher" && (
-                   <ActionMenu actions={[
-                    { label: "Start Test", onClick: () => navigate(`/take-test/${test._id}`) },
-                    ...(user?.userType === "teacher" ? [
-                      { label: "Edit", onClick: () => navigate(`/setcards/${test.setId}`) },
-                      { label: "Add Student", onClick: () => assignStudent(test._id) },
-                      { label: "Delete", onClick: () => deleteTest(test._id), isDelete: true }
-                    ] : [])
-                  ]} />
+                  {user?.userType === "student" && test.sharedBy && (
+                    <small className="shared-badge">Teacher: {test.sharedBy}</small>
                   )}
+                  <p className="folder-count">Time limit: {test.timeLimit} min</p>
                 </div>
-              </div>
-            ))
-          ) : (
+              ))
+            ) : (
             <div className="empty-state">
               {user?.userType === "student" ? (
                 <div className="no-tests-message">

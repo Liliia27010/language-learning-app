@@ -13,6 +13,8 @@ export default function TakeTest() {
   const [isFinished, setIsFinished] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
 
+  const [timeLeft, setTimeLeft] = useState(null);
+
   useEffect(() => {
     const fetchTestData = async () => {
       try {
@@ -21,6 +23,8 @@ export default function TakeTest() {
         
         if (data.success) {
           setTest(data.test);
+          setTimeLeft(data.test.timeLimit * 60);
+
           const setRes = await fetch(`/api/setcards/${data.test.setId}`);
           const setData = await setRes.json();
           
@@ -34,6 +38,56 @@ export default function TakeTest() {
     };
     fetchTestData();
   }, [testId]);
+
+  useEffect(() => {
+    if (timeLeft === null || isFinished) return;
+
+    if (timeLeft <= 0) {
+      setIsFinished(true);
+      saveResults(score);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, isFinished]);
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  };
+
+  
+const saveResults = async (finalScore) => {
+  try {
+
+    const totalAllowedSeconds = test.timeLimit * 60;
+    const secondsUsed = totalAllowedSeconds - timeLeft;
+
+    console.log(`Saving results: Score ${finalScore}, Time: ${secondsUsed}s`);
+
+    const response = await fetch("/api/tests/results", {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      },
+      body: JSON.stringify({
+        testId: testId,
+        score: finalScore,
+        timeTaken: secondsUsed,
+        completedAt: new Date()
+      })
+    });
+  } catch (err) {
+    console.error("Error saving test results:", err);
+    alert("Warning: Your score might not have saved. Please check your connection.");
+  }
+};
 
 
   const generateQuestions = (cards) => {
@@ -74,6 +128,7 @@ export default function TakeTest() {
         setSelectedAnswer(null);
       } else {
         setIsFinished(true);
+        saveResults(score + (answer === questions[currentIdx].correct ? 1 : 0));
       }
     }, 800);
   };
@@ -83,7 +138,7 @@ export default function TakeTest() {
   if (isFinished) {
     return (
       <div className="test-container result-screen">
-        <h1>Test Completed!</h1>
+        <h1>{timeLeft <= 0 ? "Time's Up!" : "Test Completed!"}</h1>
         <p className="final-score">Score: {score} / {questions.length}</p>
         <button className="create-btn" onClick={() => navigate("/library")}>
           Return to Library
@@ -98,7 +153,9 @@ export default function TakeTest() {
     <div className="test-page-container">
       <div className="test-header">
         <span className="question-count">Question {currentIdx + 1} / {questions.length}</span>
-        <span className="test-timer">Time: {test.timeLimit} min</span>
+       <span className={`test-timer ${timeLeft < 30 ? "timer-low" : ""}`}>
+          Time: {formatTime(timeLeft)}
+        </span>
       </div>
 
       <div className="question-card">
