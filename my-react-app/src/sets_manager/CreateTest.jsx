@@ -61,25 +61,25 @@ export default function CreateTest() {
       </div>
       <form onSubmit={handleCreate}>
         <div className="input-field">
-          <label>Test Title</label>
+          <label htmlFor="testTitle">Test Title</label>
           <input 
+            id="testTitle"
             type="text" 
             className="input"
             placeholder="Fruits"
             value={testTitle} 
             onChange={(e) => setTestTitle(e.target.value)} 
-            required 
           />
         </div>
 
         <div className="input-field">
-          <label>Select Set</label>
+          <label htmlFor="selectSet">Select Set</label>
           <select 
+            id="selectSet"
             value={selectedSetId} 
              type="text"
               className="input"
             onChange={(e) => setSelectedSetId(e.target.value)} 
-            required
           >
             <option value="">Choose a Set</option>
             {savedSets.map((set) => (
@@ -89,8 +89,9 @@ export default function CreateTest() {
         </div>
 
         <div className="input-field">
-          <label>Time Limit (minutes)</label>
+          <label htmlFor="timeLimit">Time Limit (minutes)</label>
           <input 
+          id="timeLimit"
             type="number" 
               className="input"
                placeholder="23"
