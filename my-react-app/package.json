@@ -12,6 +12,7 @@
     "test:browser": "vitest --config vitest.browser.config.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "better-auth": "^1.4.18",
     "lucide-react": "^0.562.0",
     "react": "^19.2.3",

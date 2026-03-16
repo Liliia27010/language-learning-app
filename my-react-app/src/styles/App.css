@@ -1275,3 +1275,155 @@ button {
 
 }
 
+/* AI ASSISTENT */
+
+.ai-floating-btn {
+  position: fixed; 
+  bottom: 30px;    
+  right: 30px;   
+  z-index: 1000;  
+  
+  background: #6200ee;
+  color: white;
+  border: none;
+  padding: 15px 25px;
+  border-radius: 50px; 
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
+  transition: transform 0.2s, background 0.2s;
+}
+
+.ai-floating-btn:hover {
+  background: #7c4dff;
+  transform: scale(1.05); 
+}
+
+.ai-floating-btn:active {
+  transform: scale(0.95);
+}
+
+
+.magic-ai-fixed-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2001;
+  padding: 12px 24px;
+  border-radius: 50px;
+  background-color: #6200ee;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.magic-ai-fixed-btn:hover {
+  background-color: #7c4dff;
+  transform: translateY(-2px);
+}
+
+.ai-window-overlay {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 380px;
+  max-height: 70vh;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-window-header {
+  background-color: #f8f9fa;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+}
+
+.ai-window-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.close-ai-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #888;
+}
+
+
+.ai-window-body {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.ai-input-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.ai-preview-table-container {
+  margin-top: 10px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ai-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.ai-preview-table th {
+  background-color: #f5f5f5;
+  padding: 10px;
+  text-align: left;
+  font-size: 13px;
+  color: #666;
+}
+
+.ai-preview-table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  color: black;
+  font-size: 14px;
+}
+
+
+.ai-add-all-btn {
+  margin-top: 15px;
+  width: 100%;
+  padding: 12px;
+  background-color: #6149a3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.ai-add-all-btn:hover {
+  background-color: #6149a3;
+}

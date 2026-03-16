@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useLibrary } from "../context/LibraryContext";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default function SetCards() {
   const { setId } = useParams();
@@ -12,6 +13,13 @@ export default function SetCards() {
   const [cards, setCards] = useState([
     { id: Date.now(), term: "", definition: "", color: "#ffffff" },
   ]);
+
+  const [aiInput , setAiInput] = useState("");
+  const [aiPreview, setAiPreview] = useState([]);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [showAiAssistant, setShowAiAssistant] = useState(false);
+
+  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
   const [isFolderModalOpen, setIsFolderMadalOpen] = useState(false);
   const [createdSetId, setCreatedSetId] = useState(null);
@@ -116,6 +124,44 @@ export default function SetCards() {
     }
   };
 
+  const handleAiGenerate = async () => {
+    if (!aiInput) return;
+    setIsAiLoading(true);
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const prompt = `Create a list of vocabulary cards for: ${aiInput}. 
+      Format: return ONLY a JSON array of objects with "term" (English) and "definition" (Finnish). 
+      Example: [{"term": "Apple", "definition": "Omena"}]`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+      
+      const jsonStr = text.match(/\[.*\]/s)[0]; 
+      const parsedCards = JSON.parse(jsonStr);
+      setAiPreview(parsedCards);
+    } catch (error) {
+      console.error("AI Error:", error);
+      alert("AI failed to generate cards.");
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
+  const addAiCardsToSet = () => {
+    const newCards = aiPreview.map(c => ({
+      id: Math.random(),
+      term: c.term,
+      definition: c.definition,
+      color: "#ffffff"
+    }));
+    const filteredCurrent = cards.filter(c => c.term || c.definition);
+    setCards([...filteredCurrent, ...newCards]);
+    setAiPreview([]);
+    setAiInput("");
+    setShowAiAssistant(false);
+  };
+
   return (
     <>
       <div className="create-set">
@@ -127,6 +173,61 @@ export default function SetCards() {
         <div className="create-header">
           <h1>{setId ? "Edit Set" : "Create New Set"}</h1>
         </div>
+
+        {showAiAssistant && (
+          <div className="ai-window-overlay">
+            <div className="ai-window-header">
+              <h3>AI Assistant</h3>
+              <button onClick={() => setShowAiAssistant(false)} className="close-modal-btn">✕</button>
+            </div>
+            
+            <div className="ai-window-body">
+              <div className="ai-input-group">
+                <input style={{background: 'rgba(123, 124, 124, 0.2)'}}
+                  type="text" 
+                  placeholder="10 fruits" 
+                  className="card-input"
+                  value={aiInput}
+                  onChange={(e) => setAiInput(e.target.value)}
+                />
+                <button onClick={handleAiGenerate} disabled={isAiLoading} className="create-btn">
+                  {isAiLoading ? "wait..." : "Gen"}
+                </button>
+              </div>
+
+              {aiPreview.length > 0 && (
+                <div className="ai-preview-table-container">
+                  <table className="ai-preview-table">
+                    <thead>
+                      <tr>
+                        <th>Term</th>
+                        <th>Definition</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {aiPreview.map((card, i) => (
+                        <tr key={i}>
+                          <td>{card.term}</td>
+                          <td>{card.definition}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <button onClick={addAiCardsToSet} className="ai-add-all-btn">
+                    ADD ALL TO SET
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        <button 
+            className="ai-floating-btn" 
+            onClick={() => setShowAiAssistant(!showAiAssistant)}
+            
+          >
+            {showAiAssistant ? "Close AI Assistant" : " AI Creator"}
+          </button>
 
         <div className="editor-placeholder">
           <input
