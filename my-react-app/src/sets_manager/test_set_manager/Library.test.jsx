@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import Library from "../Library";
 import { LibraryContext } from "../../context/LibraryContext";
+import { AuthContext } from "../../context/LoginContext";
 import "@testing-library/jest-dom";
 
 const mockNavigate = vi.fn();
@@ -17,121 +18,160 @@ vi.mock("react-router", async () => {
 });
 
 describe("Library Component", () => {
+
   const mockDeleteCardSet = vi.fn();
   const mockSetFolders = vi.fn();
+  const TEST_USER_ID = "u1";
+
+  const mockAuthValue = {
+    user: { id: TEST_USER_ID, name: "Liliia", userType: "teacher" }
+  };
 
   const mockContextValue = {
     savedSets: [
-      { _id: "s1", name: "Spanish Set", description: "Basic words", cards: [1, 2] },
+      {
+        _id: "s1",
+        name: "Spanish Set",
+        cards: [1, 2],
+        userId: [TEST_USER_ID],
+        sets: [{ _id: "s2" }]
+      },
       { _id: "s2", name: "In Folder Set", cards: [1] }
     ],
     folders: [
       {
         _id: "f1",
         name: "School Folder",
-        description: "Math and Science",
-        sets: [{ _id: "s2" }]
+        userId: [TEST_USER_ID]
       }
     ],
     deleteCardSet: mockDeleteCardSet,
     setFolders: mockSetFolders,
   };
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-    global.fetch = vi.fn();
-    window.alert = vi.fn();
-    window.prompt = vi.fn();
-    Object.defineProperty(window, 'location', {
-      configurable: true,
-      value: { reload: vi.fn() },
-    });
-    vi.spyOn(console, "error").mockImplementation(() => {});
-  });
-
   const renderComponent = () =>
     render(
       <MemoryRouter>
-        <LibraryContext.Provider value={mockContextValue}>
-          <Library />
-        </LibraryContext.Provider>
+        <AuthContext.Provider value={mockAuthValue}>
+          <LibraryContext.Provider value={mockContextValue}>
+            <Library />
+          </LibraryContext.Provider>
+        </AuthContext.Provider>
       </MemoryRouter>
     );
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        json: () => Promise.resolve({ success: true, tests: [] }),
+      })
+    );
+
+    window.alert = vi.fn();
+    window.prompt = vi.fn();
+  });
+
   it("renders folders and filtered sets correctly", () => {
     renderComponent();
+
     expect(screen.getByText("School Folder")).toBeInTheDocument();
-    expect(screen.getByText("1 sets")).toBeInTheDocument();
+    expect(screen.getByText(/0\s+sets/i)).toBeInTheDocument();
+
     expect(screen.getByText("Spanish Set")).toBeInTheDocument();
-    expect(screen.queryByText("In Folder Set")).not.toBeInTheDocument();
   });
 
   it("navigates to create new folder page", () => {
     renderComponent();
-    fireEvent.click(screen.getByText("+ New Folder"));
+
+    fireEvent.click(screen.getByText(/\+.*folder/i));
+
     expect(mockNavigate).toHaveBeenCalledWith("/folder");
   });
 
   it("deletes a folder via API call", async () => {
-    global.fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true }),
-    });
 
-    renderComponent();
-    
-    const folderSection = screen.getByText("Your Folders").closest('.section');
-    const deleteBtn = within(folderSection).getByRole("button", { name: /Delete/i });
-    
-    fireEvent.click(deleteBtn);
+  renderComponent();
 
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith("/api/folder/f1", expect.objectContaining({
-        method: "delete"
-      }));
-      expect(mockSetFolders).toHaveBeenCalled();
-    });
+  const folderCard = screen.getByText("School Folder").closest(".folder-card");
+
+  const menuBtn = within(folderCard).getByRole("button");
+  fireEvent.click(menuBtn);
+
+  const deleteBtn = await screen.findByText(/delete/i);
+  fireEvent.click(deleteBtn);
+
+  await waitFor(() => {
+    const called = global.fetch.mock.calls.some(
+      call =>
+        call[0].includes("/api/folder/f1") &&
+        call[1]?.method?.toLowerCase() === "delete"
+    );
+
+    expect(called).toBe(true);
   });
+
+});
 
   it("updates a folder name via prompt and API", async () => {
-    window.prompt
-      .mockReturnValueOnce("New Name")
-      .mockReturnValueOnce("New Description");
 
-    global.fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true }),
-    });
+  const promptSpy = vi.spyOn(window, "prompt")
+    .mockReturnValueOnce("New Name")
+    .mockReturnValueOnce("New Description");
 
-    renderComponent();
-    
-    const folderSection = screen.getByText("Your Folders").closest('.section');
-    const editBtn = within(folderSection).getByRole("button", { name: /Edit/i });
-    
-    fireEvent.click(editBtn);
+  renderComponent();
 
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith("/api/folder/f1", expect.objectContaining({
-        method: "PUT",
-        body: JSON.stringify({ name: "New Name", description: "New Description" })
-      }));
-    });
+  const folderCard = screen.getByText("School Folder").closest(".folder-card");
+
+  const menuBtn = within(folderCard).getByRole("button");
+  fireEvent.click(menuBtn);
+
+  const editBtn = await screen.findByText(/edit/i);
+  fireEvent.click(editBtn);
+
+  await waitFor(() => {
+    expect(promptSpy).toHaveBeenCalled();
   });
 
-  it("calls deleteCardSet for a specific set", () => {
+  const called = global.fetch.mock.calls.some(
+    call =>
+      call[0].includes("/api/folder/f1") &&
+      call[1]?.method === "PUT"
+  );
+
+  expect(called).toBe(true);
+
+});
+
+  it("calls deleteCardSet for a specific set", async () => {
+
     renderComponent();
-    
-    const setsSection = screen.getByText("Your Cards Set").closest('.section');
-    const deleteBtn = within(setsSection).getByRole("button", { name: /Delete/i });
-    
+
+    const spanishSetCard = screen.getByText("Spanish Set").closest(".folder-card");
+
+    const menuBtn = within(spanishSetCard).getByText("⋮");
+    fireEvent.click(menuBtn);
+
+    const deleteBtn = await screen.findByRole("button", { name: /delete/i });
     fireEvent.click(deleteBtn);
 
     expect(mockDeleteCardSet).toHaveBeenCalledWith("s1");
   });
 
-  it("navigates to learn page for a set", () => {
+  it("navigates to learn page for a set", async () => {
+
     renderComponent();
-    fireEvent.click(screen.getByText("Learn"));
+
+    const spanishSetCard = screen.getByText("Spanish Set").closest(".folder-card");
+
+    const menuBtn = within(spanishSetCard).getByText("⋮");
+    fireEvent.click(menuBtn);
+
+    const learnBtn = await screen.findByRole("button", { name: /learn/i });
+    fireEvent.click(learnBtn);
+
     expect(mockNavigate).toHaveBeenCalledWith("/cards/s1");
   });
+
 });

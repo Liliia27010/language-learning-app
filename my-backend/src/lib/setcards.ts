@@ -67,7 +67,7 @@ router.post("/", async (req, res) => {
       createdAt: new Date(), 
     });
 
-    return res.status(201).json({ success: true, id: result.insertedId });
+    return res.status(201).json({ success: true, id: result.insertedId.toString() });
   } catch (error) {
     res.status(500).json({ success: false, message: "Failed to create set" });
   }

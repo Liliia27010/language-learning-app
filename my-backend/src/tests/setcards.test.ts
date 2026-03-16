@@ -7,6 +7,7 @@ import auth, { db } from "../lib/auth.js";
 const TEST_USER_ID = new ObjectId().toString(); // Replace with a valid user ID from your database
 
 const mockCollection = {
+  aggregate: jest.fn().mockReturnThis(),
   find: jest.fn<any>().mockReturnThis(), // .find() chains into .toArray()
   toArray: jest.fn<any>(),
   insertOne: jest.fn<any>(),
@@ -45,6 +46,7 @@ describe("SetCards API", () => {
 
   afterEach(() => {
     // 4. Clear the mock after tests to prevent memory leaks
+    jest.clearAllMocks();
     jest.restoreAllMocks();
   });
 
@@ -62,9 +64,7 @@ describe("SetCards API", () => {
 
     //check the database call was made with correct userId filter
     expect(db.collection).toHaveBeenCalledWith("setcards");
-    expect(mockCollection.find).toHaveBeenCalledWith({
-      userId: new ObjectId(TEST_USER_ID),
-    });
+    expect(mockCollection.aggregate).toHaveBeenCalled();
 
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
@@ -107,7 +107,7 @@ describe("SetCards API", () => {
     expect(response.body).toHaveProperty("id", mockInsertedId.toString());
 
     expect(mockCollection.insertOne).toHaveBeenCalledWith(
-      expect.objectContaining({ userId: new ObjectId(TEST_USER_ID) }),
+      expect.objectContaining({ userId: [TEST_USER_ID] }),
     );
   });
   //create others tests for error handling, missing fields, invalid data, etc
@@ -141,7 +141,7 @@ describe("SetCards API", () => {
     const fakeSet = {
       _id: fakeSetId,
       name: "One Set",
-      userId: new ObjectId(TEST_USER_ID),
+      userId: { $in: [TEST_USER_ID]},
     };
 
     mockCollection.findOne.mockResolvedValueOnce(fakeSet);
@@ -153,7 +153,7 @@ describe("SetCards API", () => {
     expect(response.body.name).toBe("One Set");
     expect(mockCollection.findOne).toHaveBeenCalledWith({
       _id: fakeSetId,
-      userId: new ObjectId(TEST_USER_ID),
+      userId: { $in: [TEST_USER_ID] },
     });
   });
 

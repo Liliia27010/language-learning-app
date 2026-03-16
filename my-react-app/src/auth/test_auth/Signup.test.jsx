@@ -6,7 +6,7 @@ import { authClient } from "../../lib/auth-client";
 import '@testing-library/jest-dom';
 
 vi.mock("../../lib/auth-client", () => ({
-  authClient: { signUp: { email: vi.fn() } },
+  authClient: { signUp: { email: vi.fn().mockResolvedValue({data: null, error: null}) } },
 }));
 
 describe("Signup Component", () => {
@@ -25,31 +25,50 @@ describe("Signup Component", () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it("checks password validation", () => {
-    render(<Signup {...props} />);
-    
-    fireEvent.change(screen.getByPlaceholderText("••••••••"), { target: { value: "123" } });
-    
-    const form = screen.getByRole("button", { name: /Sign up/i }).closest('form');
-    fireEvent.submit(form);
+it("checks password validation", async () => {
+  render(<Signup {...props} />);
 
+  fireEvent.change(screen.getByPlaceholderText(/Antonio Poual/i), {
+    target: { value: "Liliia" },
+  });
+
+  fireEvent.change(screen.getByPlaceholderText(/example@mail.com/i), {
+    target: { value: "test@gmail.com" },
+  });
+
+  fireEvent.change(screen.getByPlaceholderText("••••••••"), {
+    target: { value: "123" },
+  });
+
+  fireEvent.click(screen.getByRole("button", { name: /Sign up/i }));
+
+  await waitFor(() => {
     expect(window.alert).toHaveBeenCalled();
   });
+});
 
-  it("checks teacher code validation", () => {
-    render(<Signup {...props} />);
-    
-    fireEvent.click(screen.getByText("Teacher"));
-    
+it("checks teacher code validation", () => {
+  render(<Signup {...props} />);
 
-    fireEvent.change(screen.getByPlaceholderText(/Enter FINLEARN code/i), { target: { value: "WRONGCODE" } });
-    fireEvent.change(screen.getByPlaceholderText("••••••••"), { target: { value: "12abcdef" } });
-    
-    const form = screen.getByRole("button", { name: /Sign up/i }).closest('form');
-    fireEvent.submit(form);
+  fireEvent.click(screen.getByText("Teacher"));
 
-    expect(window.alert).toHaveBeenCalledWith("Invalid Teacher Code!");
+  fireEvent.change(
+    screen.getByPlaceholderText(/Enter FINLEARN code/i),
+    { target: { value: "WRONGCODE" } }
+  );
+
+  fireEvent.change(screen.getByPlaceholderText("••••••••"), {
+    target: { value: "12abcdef" },
   });
+
+  fireEvent.submit(
+    screen.getByRole("button", { name: /Sign up/i }).closest("form")
+  );
+
+  expect(window.alert).toHaveBeenCalledWith(
+    expect.stringContaining("Invalid Teacher Code!")
+  );
+});
 
   it("completes signup successfully", async () => {
     authClient.signUp.email.mockResolvedValue({ data: {}, error: null });
@@ -76,4 +95,4 @@ describe("Signup Component", () => {
     fireEvent.click(closeBtn);
     expect(props.onClose).toHaveBeenCalled();
   });
-});
+})

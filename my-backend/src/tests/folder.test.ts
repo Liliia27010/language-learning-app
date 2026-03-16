@@ -128,7 +128,7 @@ describe("Folder API", () => {
     expect(response.body.id).toBe(mockInsertedId.toString());
     expect(mockCollection.insertOne).toHaveBeenCalledWith(
       expect.objectContaining({
-        userId: new ObjectId(TEST_USER_ID.toString()),
+        userId: [TEST_USER_ID.toString()],
       }),
     );
   });
@@ -305,7 +305,7 @@ describe("Folder API", () => {
     expect(mockCollection.updateOne).toHaveBeenCalledWith(
       {
         _id: new ObjectId(fakeFolderId.toString()),
-        userId: new ObjectId(TEST_USER_ID.toString()),
+        userId: { $in: [TEST_USER_ID.toString()]},
       },
       {
         $set: {

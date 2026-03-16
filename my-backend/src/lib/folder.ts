@@ -65,7 +65,7 @@ router.post("/", async (req, res) => {
       ownerId: [userId],
       createdAt: new Date(),
     });
-    res.status(201).json({ success: true, id: result.insertedId });
+    res.status(201).json({ success: true, id: result.insertedId.toString() });
   } catch (error) {
     res.status(500).json({ success: false, message: "Failed to create folder" });
   }

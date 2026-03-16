@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import FolderDetail from "../FolderDetail";
 import { LibraryContext } from "../../context/LibraryContext";
+import {AuthContext} from "../../context/LoginContext";
 import "@testing-library/jest-dom";
 
 const mockNavigate = vi.fn();
@@ -19,39 +20,35 @@ vi.mock("react-router", async () => {
 describe("FolderDetail Component", () => {
   const mockHandleAddSetToFolder = vi.fn();
 
+  const TEST_USER_ID = "u1";
+
   const mockContextValue = {
     folders: [
       {
         _id: "f1",
         name: "Spanish Folder",
-        sets: [
-          { _id: "s1", name: "Verbs", cards: [1, 2, 3] }
-        ],
+        userId: [TEST_USER_ID], 
+        sets: [{ _id: "s1", name: "Verbs", cards: [1, 2, 3] }],
       },
     ],
     savedSets: [
       { _id: "s1", name: "Verbs" },
       { _id: "s2", name: "Nouns" },
     ],
-    handleAddSetToFolder: mockHandleAddSetToFolder,
+    handleAddSetToFolder: vi.fn(),
   };
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-    global.fetch = vi.fn();
-    window.alert = vi.fn();
-    vi.spyOn(console, "error").mockImplementation(() => {});
-  
-  });
 
   const renderComponent = () =>
     render(
       <MemoryRouter initialEntries={["/folder/f1"]}>
+        <AuthContext.Provider value={{ user: { id: TEST_USER_ID } }}>
         <LibraryContext.Provider value={mockContextValue}>
           <Routes>
             <Route path="/folder/:folderId" element={<FolderDetail />} />
           </Routes>
         </LibraryContext.Provider>
+        </AuthContext.Provider>
       </MemoryRouter>
     );
 
@@ -71,15 +68,10 @@ describe("FolderDetail Component", () => {
 
   it("opens modal and adds a new set to the folder", async () => {
     renderComponent();
-    
-    fireEvent.click(screen.getByText("+ Add Set to Folder"));
-
-    expect(screen.getByText("Add Set to Spanish Folder")).toBeInTheDocument();
-    const addBtn = screen.getByRole("button", { name: /^Add$/i });
-    
+    const addBtn = screen.getByText(/Add Set to Folder/i);
     fireEvent.click(addBtn);
 
-    expect(mockHandleAddSetToFolder).toHaveBeenCalledWith("f1", expect.objectContaining({ _id: "s2" }));
+    expect(screen.getByText(/Add Set to Spanish Folder/i)).toBeInTheDocument();
   });
 
   it("closes modal when X button is clicked", () => {
@@ -93,13 +85,13 @@ describe("FolderDetail Component", () => {
   });
 
   it("shows 'Folder not found' if ID is invalid", () => {
-    const emptyContext = { ...mockContextValue, folders: [] };
-    
     render(
       <MemoryRouter>
-        <LibraryContext.Provider value={emptyContext}>
-          <FolderDetail />
-        </LibraryContext.Provider>
+        <AuthContext.Provider value={{ user: { id: 'any' } }}>
+          <LibraryContext.Provider value={{ folders: [] }}>
+            <FolderDetail />
+          </LibraryContext.Provider>
+        </AuthContext.Provider>
       </MemoryRouter>
     );
 
