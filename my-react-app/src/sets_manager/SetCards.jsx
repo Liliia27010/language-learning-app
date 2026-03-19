@@ -178,7 +178,6 @@ export default function SetCards() {
           <div className="ai-window-overlay">
             <div className="ai-window-header">
               <h3>AI Assistant</h3>
-              <button onClick={() => setShowAiAssistant(false)} className="close-modal-btn">✕</button>
             </div>
             
             <div className="ai-window-body">

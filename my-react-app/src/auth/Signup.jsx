@@ -12,7 +12,7 @@ export default function Signup({ isOpen, onClose, onSwitchToLogin }) {
 
   if (!isOpen) return null;
 
-  const handleSignup = async (e) => {
+  const handleSignup = async (e) => { 
     e.preventDefault();
     let finalUserType = "student";
 

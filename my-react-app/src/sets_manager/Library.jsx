@@ -48,7 +48,7 @@ export default function Library() {
         alert("Error: " + data.message);
       }
     } catch (err) {
-      alert("Failed to assign student. Check console.");
+      alert("Failed to assign student.");
     }
   };
 
@@ -256,9 +256,9 @@ console.log('render library')
                       { label: "Start Test", onClick: () => navigate(`/take-test/${test._id}`) },
                       ...(user?.userType === "teacher" ? [
                         { 
-      label: "View Results", 
-      onClick: () => navigate(`/test-results/${test._id}`) 
-    },
+                          label: "View Results", 
+                          onClick: () => navigate(`/test-results/${test._id}`) 
+                        },
                         { label: "Edit Set", onClick: () => navigate(`/setcards/${test.setId}`) },
                         { label: "Add Student", onClick: () => assignStudent(test._id) },
                         { label: "Delete", onClick: () => deleteTest(test._id), isDelete: true }
