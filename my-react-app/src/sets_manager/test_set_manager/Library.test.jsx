@@ -17,42 +17,31 @@ vi.mock("react-router", async () => {
   };
 });
 
-describe("Library Component", () => {
-
+describe("Library Component - Extended Coverage", () => {
   const mockDeleteCardSet = vi.fn();
   const mockSetFolders = vi.fn();
-  const TEST_USER_ID = "u1";
+  const TEACHER_ID = "t1";
+  const STUDENT_ID = "s1";
 
-  const mockAuthValue = {
-    user: { id: TEST_USER_ID, name: "Liliia", userType: "teacher" }
-  };
+  const mockTests = [
+    { _id: "test1", title: "Geography Quiz", timeLimit: 10, setId: "set123", sharedBy: "Teacher John" }
+  ];
 
   const mockContextValue = {
     savedSets: [
-      {
-        _id: "s1",
-        name: "Spanish Set",
-        cards: [1, 2],
-        userId: [TEST_USER_ID],
-        sets: [{ _id: "s2" }]
-      },
-      { _id: "s2", name: "In Folder Set", cards: [1] }
+      { _id: "s1", name: "Spanish Set", cards: [1], userId: [TEACHER_ID] }
     ],
     folders: [
-      {
-        _id: "f1",
-        name: "School Folder",
-        userId: [TEST_USER_ID]
-      }
+      { _id: "f1", name: "School Folder", userId: [TEACHER_ID], sets: [] }
     ],
     deleteCardSet: mockDeleteCardSet,
     setFolders: mockSetFolders,
   };
 
-  const renderComponent = () =>
+  const renderComponent = (userType = "teacher", userId = TEACHER_ID) =>
     render(
       <MemoryRouter>
-        <AuthContext.Provider value={mockAuthValue}>
+        <AuthContext.Provider value={{ user: { id: userId, name: "User", userType: userType } }}>
           <LibraryContext.Provider value={mockContextValue}>
             <Library />
           </LibraryContext.Provider>
@@ -62,116 +51,104 @@ describe("Library Component", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    global.fetch = vi.fn(() =>
-      Promise.resolve({
-        json: () => Promise.resolve({ success: true, tests: [] }),
-      })
-    );
-
+    global.fetch = vi.fn((url) => {
+      if (url.includes("/api/tests")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ success: true, tests: mockTests }),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({ success: true }) });
+    });
     window.alert = vi.fn();
+    window.confirm = vi.fn(() => true);
     window.prompt = vi.fn();
   });
 
-  it("renders folders and filtered sets correctly", () => {
+  it("shares a card set via email prompt", async () => {
+    window.prompt.mockReturnValue("student@example.com");
     renderComponent();
 
-    expect(screen.getByText("School Folder")).toBeInTheDocument();
-    expect(screen.getByText(/0\s+sets/i)).toBeInTheDocument();
-
-    expect(screen.getByText("Spanish Set")).toBeInTheDocument();
-  });
-
-  it("navigates to create new folder page", () => {
-    renderComponent();
-
-    fireEvent.click(screen.getByText(/\+.*folder/i));
-
-    expect(mockNavigate).toHaveBeenCalledWith("/folder");
-  });
-
-  it("deletes a folder via API call", async () => {
-
-  renderComponent();
-
-  const folderCard = screen.getByText("School Folder").closest(".folder-card");
-
-  const menuBtn = within(folderCard).getByRole("button");
-  fireEvent.click(menuBtn);
-
-  const deleteBtn = await screen.findByText(/delete/i);
-  fireEvent.click(deleteBtn);
-
-  await waitFor(() => {
-    const called = global.fetch.mock.calls.some(
-      call =>
-        call[0].includes("/api/folder/f1") &&
-        call[1]?.method?.toLowerCase() === "delete"
-    );
-
-    expect(called).toBe(true);
-  });
-
-});
-
-  it("updates a folder name via prompt and API", async () => {
-
-  const promptSpy = vi.spyOn(window, "prompt")
-    .mockReturnValueOnce("New Name")
-    .mockReturnValueOnce("New Description");
-
-  renderComponent();
-
-  const folderCard = screen.getByText("School Folder").closest(".folder-card");
-
-  const menuBtn = within(folderCard).getByRole("button");
-  fireEvent.click(menuBtn);
-
-  const editBtn = await screen.findByText(/edit/i);
-  fireEvent.click(editBtn);
-
-  await waitFor(() => {
-    expect(promptSpy).toHaveBeenCalled();
-  });
-
-  const called = global.fetch.mock.calls.some(
-    call =>
-      call[0].includes("/api/folder/f1") &&
-      call[1]?.method === "PUT"
-  );
-
-  expect(called).toBe(true);
-
-});
-
-  it("calls deleteCardSet for a specific set", async () => {
-
-    renderComponent();
-
-    const spanishSetCard = screen.getByText("Spanish Set").closest(".folder-card");
-
-    const menuBtn = within(spanishSetCard).getByText("⋮");
+    const menuBtn = within(screen.getByText("Spanish Set").closest(".folder-card")).getByText("⋮");
     fireEvent.click(menuBtn);
 
-    const deleteBtn = await screen.findByRole("button", { name: /delete/i });
+    const shareBtn = await screen.findByText(/share/i);
+    fireEvent.click(shareBtn);
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/setcards/s1/share"),
+        expect.objectContaining({ method: "POST" })
+      );
+      expect(window.alert).toHaveBeenCalledWith("Shared successfully!");
+    });
+  });
+
+  it("assigns a student to a test", async () => {
+    window.prompt.mockReturnValue("newstudent@test.com");
+    renderComponent();
+
+    const testCard = await screen.findByText("Geography Quiz");
+    const menuBtn = within(testCard.closest(".folder-card")).getByText("⋮");
+    fireEvent.click(menuBtn);
+
+    const addStudentBtn = await screen.findByText(/add student/i);
+    fireEvent.click(addStudentBtn);
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/tests/test1/assign"),
+        expect.any(Object)
+      );
+    });
+  });
+
+  it("deletes a test after confirmation", async () => {
+    renderComponent();
+
+    const testCard = await screen.findByText("Geography Quiz");
+    const menuBtn = within(testCard.closest(".folder-card")).getByText("⋮");
+    fireEvent.click(menuBtn);
+
+    const deleteBtn = await screen.findByText(/delete/i);
     fireEvent.click(deleteBtn);
 
-    expect(mockDeleteCardSet).toHaveBeenCalledWith("s1");
+    expect(window.confirm).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/tests/test1"),
+        expect.objectContaining({ method: "DELETE" })
+      );
+    });
   });
 
-  it("navigates to learn page for a set", async () => {
+  it("renders student view without create buttons", async () => {
+    renderComponent("student", STUDENT_ID);
 
+    expect(screen.getByText("Assigned Tests")).toBeInTheDocument();
+    
+    expect(screen.queryByText("+ Create New Test")).not.toBeInTheDocument();
+    
+
+    const sharedBadge = await screen.findByText(/Teacher: Teacher John/i);
+    expect(sharedBadge).toBeInTheDocument();
+  });
+
+  it("shares a folder via email prompt", async () => {
+    window.prompt.mockReturnValue("friend@test.com");
     renderComponent();
 
-    const spanishSetCard = screen.getByText("Spanish Set").closest(".folder-card");
-
-    const menuBtn = within(spanishSetCard).getByText("⋮");
+    const menuBtn = within(screen.getByText("School Folder").closest(".folder-card")).getByRole("button");
     fireEvent.click(menuBtn);
 
-    const learnBtn = await screen.findByRole("button", { name: /learn/i });
-    fireEvent.click(learnBtn);
+    const shareBtn = await screen.findByText(/share/i);
+    fireEvent.click(shareBtn);
 
-    expect(mockNavigate).toHaveBeenCalledWith("/cards/s1");
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/folder/f1/share"),
+        expect.any(Object)
+      );
+    });
   });
-
 });

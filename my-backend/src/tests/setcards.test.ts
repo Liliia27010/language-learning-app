@@ -8,7 +8,7 @@ const TEST_USER_ID = new ObjectId().toString(); // Replace with a valid user ID 
 
 const mockCollection = {
   aggregate: jest.fn().mockReturnThis(),
-  find: jest.fn<any>().mockReturnThis(), // .find() chains into .toArray()
+  find: jest.fn<any>().mockReturnThis(), 
   toArray: jest.fn<any>(),
   insertOne: jest.fn<any>(),
   findOne: jest.fn<any>(),
@@ -100,8 +100,6 @@ describe("SetCards API", () => {
 
     const response = await request(app).post("/api/setcards").send(newSet);
 
-    //test that we call insertOne with correct data
-
     expect(response.status).toBe(201);
     expect(response.body.success).toBe(true);
     expect(response.body).toHaveProperty("id", mockInsertedId.toString());
@@ -110,7 +108,7 @@ describe("SetCards API", () => {
       expect.objectContaining({ userId: [TEST_USER_ID] }),
     );
   });
-  //create others tests for error handling, missing fields, invalid data, etc
+
   it("POST /api/setcards - should return 500 when insert fails", async () => {
     mockCollection.insertOne.mockRejectedValueOnce(new Error("Database error"));
 
