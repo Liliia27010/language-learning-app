@@ -16,5 +16,5 @@ jobs:
       - run: npm test
       - run: cd my-react-app
       - run: npm install
-      - run: npm run
+      - run: npm test
       
