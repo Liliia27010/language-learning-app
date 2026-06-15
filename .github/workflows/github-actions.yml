@@ -1,20 +1,34 @@
 name: github-actions
 run-name: ${{ github.actor }} is learning GitHub Action
-on:
+on: 
   pull_request:
     branches: [ main ]
+
 jobs:
-  check-tests:
+  check-backend-tests:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./my-backend
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: cd my-backend
       - run: npm install
       - run: npm test
-      - run: cd my-react-app
+  check-frontend-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./my-react-app
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
       - run: npm install
       - run: npm test
       
